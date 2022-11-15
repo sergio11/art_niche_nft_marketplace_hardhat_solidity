@@ -98,6 +98,14 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
         return _tokenCreators[tokenId];
     }
 
+    function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory) {
+        return _tokenIdToItem[tokenId];
+    }
+
+    function updateOwner(uint256 tokenId, address newOwner) external {
+        _tokenIdToItem[tokenId].owner = newOwner;
+    }
+
 
     function pause() public onlyOwner {
         _pause();

@@ -3,20 +3,58 @@ pragma solidity ^0.8.9;
 
 interface IArtMarketplace { 
 
+
+    /**
+     * @dev list an item with a `tokenId` for a `price`
+     *
+     * Requirements:
+     * - Only the owner of the `tokenId` can list the item
+     * - The `tokenId` can only be listed once
+     *
+     * Emits a {Transfer} event - transfer the token to this smart contract.
+     * Emits a {ArtCollectibleAddedForSale} event
+     */
     function putItemForSale(uint256 tokenId, uint256 price) external payable returns (uint256);
-    function buyItem(uint256 id) external payable;
+
+    /**
+     * @dev Cancel a listing of an item with a `tokenId`
+     *
+     * Requirements:
+     * - Only the account that has listed the `tokenId` can delist it
+     *
+     * Emits a {Transfer} event - transfer the token from this smart contract to the owner.
+     * Emits a {ArtCollectibleWithdrawnFromSale} event.
+     */
+    function withdrawFromSale(uint256 tokenId) external;
+    
+    
+    /**
+     * @dev Buy an item with a `tokenId` and pay the owner and the creator
+     *
+     * Requirements:
+     * - `tokenId` has to be listed
+     * - `price` needs to be the same as the value sent by the caller
+     *
+     * Emits a {Transfer} event - transfer the item from this smart contract to the buyer.
+     * Emits an {ArtCollectibleSold} event.
+     */
+    function buyItem(uint256 tokenId) external payable;
 
     // Data Structure
     struct ArtCollectibleForSale {
-        uint256 id;
+        uint256 marketItemId;
         uint256 tokenId;
+        address payable creator;
         address payable seller;
+        address payable owner;
         uint256 price;
-        bool isSold;
+        bool sold;
+        bool canceled;
     }
 
     // Events Definitions
     event ArtCollectibleAddedForSale(uint256 id, uint256 tokenId, uint256 price);
-    event ArtCollectibleSold(uint256 id, address buyer, uint256 price);
+    event ArtCollectibleWithdrawnFromSale(uint256 tokenId);
+    event ArtCollectibleSold(uint256 tokenId, address buyer, uint256 price);
 
 }

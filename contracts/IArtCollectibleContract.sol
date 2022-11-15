@@ -7,6 +7,8 @@ interface IArtCollectibleContract {
     function getTokensCreatedByMe() external view returns (uint256[] memory);
     function getTokensOwnedByMe() external view returns (uint256[] memory);
     function getTokenCreatorById(uint256 tokenId) external view returns (address);
+    function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory);
+    function updateOwner(uint256 tokenId, address newOwner) external;
 
     // Data Structure
     struct ArtCollectible {
