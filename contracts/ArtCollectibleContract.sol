@@ -16,13 +16,18 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
 
     Counters.Counter private _tokenIdCounter;
     ArtCollectible[] private _collectibles;
-
+    address private _marketplaceAddress;
     // Mapping to check if the metadata has been minted
-    mapping(string => bool) public hasBeenMinted;
+    mapping(string => bool) private _hasBeenMinted;
     // Mapping to keep track of the Item
-    mapping(uint256 => ArtCollectible) public tokenIdToItem;
+    mapping(uint256 => ArtCollectible) private _tokenIdToItem;
+    mapping(uint256 => address) private _tokenCreators;
 
     constructor() ERC721("ArtCollectible", "MTK") {}
+
+    function setMarketplaceAddress(address marketplaceAddress) public payable onlyOwner() {
+       _marketplaceAddress = marketplaceAddress;
+    }
 
     /**
      * @dev create an art collectible with a `metadata` for the msg.sender
@@ -33,19 +38,64 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
      *
      * Emits a {Transfer} event - comes from the ERC-721 smart contract.
      */
-    function createArtCollectible(string memory metadataUri, uint256 royalty) external override returns (uint256) {
-        require(!hasBeenMinted[metadataUri],"This metadata has already been used to mint an NFT.");
+    function mintToken(string memory metadataUri, uint256 royalty) external override returns (uint256) {
+        require(!_hasBeenMinted[metadataUri],"This metadata has already been used to mint an NFT.");
         require(royalty >= 0 && royalty <= 40, "Royalties must be between 0% and 40%.");
         ArtCollectible memory artCollectible = ArtCollectible(msg.sender, msg.sender, royalty);
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, metadataUri);
+        // Give the marketplace approval to transact NFTs between users
+        setApprovalForAll(_marketplaceAddress, true);
         _collectibles.push(artCollectible);
-        tokenIdToItem[tokenId] = artCollectible;
-        hasBeenMinted[metadataUri] = true;
+        _tokenIdToItem[tokenId] = artCollectible;
+        _hasBeenMinted[metadataUri] = true;
+        _tokenCreators[tokenId] = msg.sender;
         emit ArtCollectibleMinted(tokenId, msg.sender, metadataUri, royalty);
         return tokenId;
+    }
+
+    function getTokensCreatedByMe() external view returns (uint256[] memory) {
+        uint256 numberOfExistingTokens = _tokenIdCounter.current();
+        uint256 numberOfTokensCreated = 0;
+
+        for (uint256 i = 0; i < numberOfExistingTokens; i++) {
+            uint256 tokenId = i + 1;
+            if (_tokenCreators[tokenId] != msg.sender) continue;
+            numberOfTokensCreated += 1;
+        }
+
+        uint256[] memory createdTokenIds = new uint256[](numberOfTokensCreated);
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < numberOfExistingTokens; i++) {
+            uint256 tokenId = i + 1;
+            if (_tokenCreators[tokenId] != msg.sender) continue;
+            createdTokenIds[currentIndex] = tokenId;
+            currentIndex += 1;
+        }
+
+        return createdTokenIds;
+    }
+
+    function getTokensOwnedByMe() external view returns (uint256[] memory) { 
+        uint256 numberOfExistingTokens = _tokenIdCounter.current();
+        uint256 numberOfTokensOwned = balanceOf(msg.sender);
+        uint256[] memory ownedTokenIds = new uint256[](numberOfTokensOwned);
+
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < numberOfExistingTokens; i++) {
+            uint256 tokenId = i + 1;
+            if (ownerOf(tokenId) != msg.sender) continue;
+            ownedTokenIds[currentIndex] = tokenId;
+            currentIndex += 1;
+        }
+
+        return ownedTokenIds;
+    }
+
+    function getTokenCreatorById(uint256 tokenId) public view returns (address) {
+        return _tokenCreators[tokenId];
     }
 
 

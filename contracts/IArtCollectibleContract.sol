@@ -3,10 +3,10 @@ pragma solidity ^0.8.9;
 
 interface IArtCollectibleContract {
 
-    /**
-     * 
-     */
-   function createArtCollectible(string memory metadataUri, uint256 royalty) external returns (uint256);
+    function mintToken(string memory metadataUri, uint256 royalty) external returns (uint256);
+    function getTokensCreatedByMe() external view returns (uint256[] memory);
+    function getTokensOwnedByMe() external view returns (uint256[] memory);
+    function getTokenCreatorById(uint256 tokenId) external view returns (address);
 
     // Data Structure
     struct ArtCollectible {
@@ -15,7 +15,7 @@ interface IArtCollectibleContract {
         uint256 royalty;
     }
 
-     // Events Definitions
+    // Events Definitions
 
     /**
      * @dev Emitted when a `tokenId` has been bought for a `price` by a `buyer`
