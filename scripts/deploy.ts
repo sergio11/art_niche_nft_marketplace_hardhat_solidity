@@ -1,7 +1,7 @@
 import { ethers } from "hardhat";
 
 async function main() {
-  const ContractFactory = await ethers.getContractFactory("MyToken");
+  const ContractFactory = await ethers.getContractFactory("ArtCollectible");
 
   const instance = await ContractFactory.deploy();
   await instance.deployed();
