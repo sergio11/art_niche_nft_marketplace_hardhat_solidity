@@ -8,11 +8,13 @@ import "./IArtMarketplace.sol";
 import "./IArtCollectibleContract.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "./Utils.sol";
 
 /// @custom:security-contact dreamsoftware92@gmail.com
 contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
+    using Utils for string;
 
     uint256 public constant DEFAULT_COST_OF_PUTTING_FOR_SALE = 0.010 ether;
 
@@ -133,6 +135,50 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
         }
         return marketItems;
     }
+
+    /**
+     * @dev Fetch market items that are being listed by the msg.sender
+     */
+    function fetchSellingMarketItems() external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchMarketItemsByAddressProperty("seller");
+    }
+
+    /**
+     * @dev Fetch market items that are owned by the msg.sender
+     */
+    function fetchOwnedMarketItems() public view returns (ArtCollectibleForSale[] memory) {
+        return _fetchMarketItemsByAddressProperty("owner");
+    }
+
+    /**
+     * @dev Fetches market items according to the its requested address property that
+     * can be "owner" or "seller".
+     * See original: https://github.com/dabit3/polygon-ethereum-nextjs-marketplace/blob/main/contracts/Market.sol#L121
+     */
+    function _fetchMarketItemsByAddressProperty(string memory _addressProperty) private view returns (ArtCollectibleForSale[] memory) {
+        require(
+            _addressProperty.compareStrings("seller") || _addressProperty.compareStrings("owner"),
+            "Parameter must be 'seller' or 'owner'"
+        );
+        uint256 totalItemsCount = _marketItemIds.current();
+        uint256 itemCount = 0;
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < totalItemsCount; i++) {
+            address addressPropertyValue = _addressProperty.compareStrings("seller") ? _tokensForSale[i + 1].seller : _tokensForSale[i + 1].owner;
+            if (addressPropertyValue != msg.sender) continue;
+            itemCount += 1;
+        }
+        ArtCollectibleForSale[] memory items = new ArtCollectibleForSale[](itemCount);
+        for (uint256 i = 0; i < totalItemsCount; i++) {
+            ArtCollectibleForSale storage item = _tokensForSale[i + 1];
+            address addressPropertyValue = _addressProperty.compareStrings("seller") ? item.seller : item.owner;
+            if (addressPropertyValue != msg.sender) continue;
+            items[currentIndex] = item;
+            currentIndex += 1;
+        }
+        return items;
+    }
+
 
     // Modifiers
     modifier OnlyItemOwner(uint256 tokenId){

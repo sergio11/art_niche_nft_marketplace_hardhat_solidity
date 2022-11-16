@@ -45,6 +45,15 @@ interface IArtMarketplace {
      */
     function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
+    /**
+     * @dev Fetch market items that are being listed by the msg.sender
+     */
+    function fetchSellingMarketItems() external view returns (ArtCollectibleForSale[] memory);
+    
+    /**
+     * @dev Fetch market items that are owned by the msg.sender
+     */
+    function fetchOwnedMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
     // Data Structure
     struct ArtCollectibleForSale {
