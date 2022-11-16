@@ -17,6 +17,8 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
     uint256 public constant DEFAULT_COST_OF_PUTTING_FOR_SALE = 0.010 ether;
 
     Counters.Counter private _marketItemIds;
+    Counters.Counter private _tokensSold;
+    Counters.Counter private _tokensCanceled;
     address private _artCollectibleAddress;
     uint256 public costOfPuttingForSale = DEFAULT_COST_OF_PUTTING_FOR_SALE;
     // Mapping to prevent the same item being listed twice
@@ -47,11 +49,10 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
         require(msg.value == costOfPuttingForSale, "Price must be equal to listing price");
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
-        address tokenCreator = IArtCollectibleContract(_artCollectibleAddress).getTokenCreatorById(tokenId);
         _tokensForSale[tokenId] = ArtCollectibleForSale(
             marketItemId, 
             tokenId, 
-            payable(tokenCreator), 
+            payable(IArtCollectibleContract(_artCollectibleAddress).getTokenCreatorById(tokenId)), 
             payable(msg.sender), 
             payable(address(0)), 
             price, 
@@ -77,7 +78,9 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
     function withdrawFromSale(uint256 tokenId) external OnlyItemOwner(tokenId) ItemAlreadyAddedForSale(tokenId) {
         //send the token from the smart contract back to the one who listed it
         ERC721(_artCollectibleAddress).safeTransferFrom(address(this), msg.sender, tokenId);
-        delete _tokensForSale[tokenId];
+        _tokensCanceled.increment();
+        _tokensForSale[tokenId].owner = payable(msg.sender);
+        _tokensForSale[tokenId].canceled = true;
         delete _hasBeenAddedForSale[tokenId];
         emit ArtCollectibleWithdrawnFromSale(tokenId);
     }
@@ -105,8 +108,30 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
         require(isRemainderSent, "An error ocurred when sending remainder to token owner");
         //transfer the token from the smart contract back to the buyer
         ERC721(_artCollectibleAddress).safeTransferFrom(address(this), msg.sender, tokenId);
+        _tokensSold.increment();
+        _tokensForSale[tokenId].owner = payable(msg.sender);
+        _tokensForSale[tokenId].sold = true;
         delete _hasBeenAddedForSale[tokenId];
         emit ArtCollectibleSold(tokenId, msg.sender, msg.value);
+    }
+
+    /**
+     * @dev Fetch non sold and non canceled market items
+     */
+    function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory) {
+        uint256 itemsCount = _marketItemIds.current();
+        uint256 soldItemsCount = _tokensSold.current();
+        uint256 canceledItemsCount = _tokensCanceled.current();
+        uint256 availableItemsCount = itemsCount - soldItemsCount - canceledItemsCount;
+        ArtCollectibleForSale[] memory marketItems = new ArtCollectibleForSale[](availableItemsCount);
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < itemsCount; i++) {
+            ArtCollectibleForSale memory item = _tokensForSale[i + 1];
+            if (item.owner != address(0)) continue;
+            marketItems[currentIndex] = item;
+            currentIndex += 1;
+        }
+        return marketItems;
     }
 
     // Modifiers

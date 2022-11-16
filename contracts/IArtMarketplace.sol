@@ -40,6 +40,12 @@ interface IArtMarketplace {
      */
     function buyItem(uint256 tokenId) external payable;
 
+    /**
+     * @dev Fetch non sold and non canceled market items
+     */
+    function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory);
+
+
     // Data Structure
     struct ArtCollectibleForSale {
         uint256 marketItemId;
