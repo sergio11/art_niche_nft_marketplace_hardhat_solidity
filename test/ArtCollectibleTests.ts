@@ -23,10 +23,9 @@ describe("ArtCollectible", function () {
 
   it("mint art collectible token", async function () {
     const { instance, owner } = await deployContractFixture();
-    const tokenRoyalty = 20
 
     const initialOwnerBalance = await instance.balanceOf(owner.address);
-    let tx = await instance.connect(owner).mintToken(DEFAULT_METADATA_CID, tokenRoyalty)
+    let tx = await instance.connect(owner).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let receipt = await tx.wait()
     let events = receipt.events?.map((x) => x.event)
     const newOwnerBalance = await instance.balanceOf(owner.address);
@@ -40,6 +39,54 @@ describe("ArtCollectible", function () {
   
   });
 
+
+  it("Royalties must be between 0% and 40%.", async function () {
+    const { instance, owner } = await deployContractFixture();
+
+    const initialOwnerBalance = await instance.balanceOf(owner.address);
+    var mintTokenErrorMessage: Error | null = null
+    try {
+      await instance.connect(owner).mintToken(DEFAULT_METADATA_CID, 45)
+    } catch(error) {
+      if (error instanceof Error) {
+        mintTokenErrorMessage = error
+      }
+    }
+    const newOwnerBalance = await instance.balanceOf(owner.address);
+
+
+    expect(initialOwnerBalance).to.equal(0);
+    expect(newOwnerBalance).to.equal(initialOwnerBalance);
+    expect(mintTokenErrorMessage).not.be.null
+    expect(mintTokenErrorMessage!!.message).to.equal("VM Exception while processing transaction: reverted with reason string 'Royalties must be between 0% and 40%.'")
+    
+  });
+
+  it("metadata has already been used to mint an NFT.", async function () {
+    const { instance, addr1, addr2 } = await deployContractFixture();
+
+    const addr1InitialOwnerBalance = await instance.balanceOf(addr1.address);
+    const addr2InitialOwnerBalance = await instance.balanceOf(addr2.address);
+    var mintTokenErrorMessage: Error | null = null
+    try {
+      await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+      await instance.connect(addr2).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    } catch(error) {
+      if (error instanceof Error) {
+        mintTokenErrorMessage = error
+      }
+    }
+    const addr1NewOwnerBalance = await instance.balanceOf(addr1.address);
+    const addr2NewOwnerBalance = await instance.balanceOf(addr2.address);
+
+    expect(addr1InitialOwnerBalance).to.equal(0);
+    expect(addr1NewOwnerBalance).to.equal(1);
+    expect(addr2InitialOwnerBalance).to.equal(0);
+    expect(addr2NewOwnerBalance).to.equal(addr2InitialOwnerBalance);
+    expect(mintTokenErrorMessage).not.be.null
+    expect(mintTokenErrorMessage!!.message).to.equal("VM Exception while processing transaction: reverted with reason string 'This metadata has already been used to mint an NFT.'")
+    
+  });
 
   it("get tokens owned by me", async function () {
     const { instance, addr1, addr2 } = await deployContractFixture()
