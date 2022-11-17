@@ -14,13 +14,13 @@ interface IArtCollectibleContract {
      * @dev Allows you to retrieve the list of tokens created by the `msg.sender`
      *
      */
-    function getTokensCreatedByMe() external view returns (uint256[] memory);
+    function getTokensCreatedByMe() external view returns (ArtCollectible[] memory);
 
     /**
      * @dev Allows you to retrieve the list of tokens owned by the `msg.sender`
      *
      */
-    function getTokensOwnedByMe() external view returns (uint256[] memory);
+    function getTokensOwnedByMe() external view returns (ArtCollectible[] memory);
 
     /**
      * @dev Allows you to retrieve the address of the creator of the token specified as a `tokenId` parameter

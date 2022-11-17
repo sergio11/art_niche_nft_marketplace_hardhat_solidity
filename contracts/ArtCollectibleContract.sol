@@ -15,7 +15,6 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
-    ArtCollectible[] private _collectibles;
     address private _marketplaceAddress;
     // Mapping to check if the metadata has been minted
     mapping(string => bool) private _hasBeenMinted;
@@ -44,13 +43,12 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
      */
     function mintToken(string memory metadataCid, uint256 royalty) external override ItemNotMintedYet(metadataCid) ValidRoyaltyInterval(royalty) returns (uint256) {
         ArtCollectible memory artCollectible = ArtCollectible(msg.sender, msg.sender, royalty);
-        uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
+        uint256 tokenId = _tokenIdCounter.current();
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, metadataCid);
         // Give the marketplace approval to transact NFTs between users
         setApprovalForAll(_marketplaceAddress, true);
-        _collectibles.push(artCollectible);
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
@@ -58,7 +56,7 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
         return tokenId;
     }
 
-    function getTokensCreatedByMe() external view returns (uint256[] memory) {
+    function getTokensCreatedByMe() external view returns (ArtCollectible[] memory) {
         uint256 numberOfExistingTokens = _tokenIdCounter.current();
         uint256 numberOfTokensCreated = 0;
 
@@ -68,32 +66,32 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
             numberOfTokensCreated += 1;
         }
 
-        uint256[] memory createdTokenIds = new uint256[](numberOfTokensCreated);
+        ArtCollectible[] memory createdTokens = new ArtCollectible[](numberOfTokensCreated);
         uint256 currentIndex = 0;
         for (uint256 i = 0; i < numberOfExistingTokens; i++) {
             uint256 tokenId = i + 1;
             if (_tokenCreators[tokenId] != msg.sender) continue;
-            createdTokenIds[currentIndex] = tokenId;
+            createdTokens[currentIndex] = _tokenIdToItem[tokenId];
             currentIndex += 1;
         }
 
-        return createdTokenIds;
+        return createdTokens;
     }
 
-    function getTokensOwnedByMe() external view returns (uint256[] memory) { 
+    function getTokensOwnedByMe() external view returns (ArtCollectible[] memory) { 
         uint256 numberOfExistingTokens = _tokenIdCounter.current();
         uint256 numberOfTokensOwned = balanceOf(msg.sender);
-        uint256[] memory ownedTokenIds = new uint256[](numberOfTokensOwned);
+        ArtCollectible[] memory ownedTokens = new ArtCollectible[](numberOfTokensOwned);
 
         uint256 currentIndex = 0;
         for (uint256 i = 0; i < numberOfExistingTokens; i++) {
             uint256 tokenId = i + 1;
             if (ownerOf(tokenId) != msg.sender) continue;
-            ownedTokenIds[currentIndex] = tokenId;
+            ownedTokens[currentIndex] = _tokenIdToItem[tokenId];
             currentIndex += 1;
         }
 
-        return ownedTokenIds;
+        return ownedTokens;
     }
 
     function getTokenCreatorById(uint256 tokenId) public view returns (address) {
