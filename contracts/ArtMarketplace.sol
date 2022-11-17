@@ -110,6 +110,7 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
         require(isRemainderSent, "An error ocurred when sending remainder to token owner");
         //transfer the token from the smart contract back to the buyer
         ERC721(_artCollectibleAddress).safeTransferFrom(address(this), msg.sender, tokenId);
+        item.owner = msg.sender;
         _tokensSold.increment();
         _tokensForSale[tokenId].owner = payable(msg.sender);
         _tokensForSale[tokenId].sold = true;

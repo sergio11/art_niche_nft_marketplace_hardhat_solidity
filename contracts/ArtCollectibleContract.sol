@@ -23,8 +23,12 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
     mapping(uint256 => ArtCollectible) private _tokenIdToItem;
     mapping(uint256 => address) private _tokenCreators;
 
-    constructor() ERC721("ArtCollectible", "MTK") {}
+    constructor() ERC721("ArtCollectible", "ACT") {}
 
+
+    /**
+     * @dev Configure address for ArtMarketplace contract
+     */
     function setMarketplaceAddress(address marketplaceAddress) public payable onlyOwner() {
        _marketplaceAddress = marketplaceAddress;
     }
@@ -33,26 +37,24 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
      * @dev create an art collectible with a `metadata` for the msg.sender
      *
      * Requirements:
-     * - `metadata` has not been minted before
+     * - `metadataCid` has not been minted before
      * - `royalty` must be between 0% and 40%
      *
      * Emits a {Transfer} event - comes from the ERC-721 smart contract.
      */
-    function mintToken(string memory metadataUri, uint256 royalty) external override returns (uint256) {
-        require(!_hasBeenMinted[metadataUri],"This metadata has already been used to mint an NFT.");
-        require(royalty >= 0 && royalty <= 40, "Royalties must be between 0% and 40%.");
+    function mintToken(string memory metadataCid, uint256 royalty) external override ItemNotMintedYet(metadataCid) ValidRoyaltyInterval(royalty) returns (uint256) {
         ArtCollectible memory artCollectible = ArtCollectible(msg.sender, msg.sender, royalty);
         uint256 tokenId = _tokenIdCounter.current();
         _tokenIdCounter.increment();
         _safeMint(msg.sender, tokenId);
-        _setTokenURI(tokenId, metadataUri);
+        _setTokenURI(tokenId, metadataCid);
         // Give the marketplace approval to transact NFTs between users
         setApprovalForAll(_marketplaceAddress, true);
         _collectibles.push(artCollectible);
         _tokenIdToItem[tokenId] = artCollectible;
-        _hasBeenMinted[metadataUri] = true;
+        _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
-        emit ArtCollectibleMinted(tokenId, msg.sender, metadataUri, royalty);
+        emit ArtCollectibleMinted(tokenId, msg.sender, metadataCid, royalty);
         return tokenId;
     }
 
@@ -102,11 +104,6 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
         return _tokenIdToItem[tokenId];
     }
 
-    function updateOwner(uint256 tokenId, address newOwner) external {
-        _tokenIdToItem[tokenId].owner = newOwner;
-    }
-
-
     function pause() public onlyOwner {
         _pause();
     }
@@ -145,5 +142,17 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
         returns (bool)
     {
         return super.supportsInterface(interfaceId);
+    }
+
+    // Modifiers
+
+    modifier ItemNotMintedYet(string memory metadataCid) {
+        require(!_hasBeenMinted[metadataCid],"This metadata has already been used to mint an NFT.");
+        _;
+    }
+
+    modifier ValidRoyaltyInterval(uint256 royalty) {
+        require(royalty >= 0 && royalty <= 40, "Royalties must be between 0% and 40%.");
+        _;
     }
 }

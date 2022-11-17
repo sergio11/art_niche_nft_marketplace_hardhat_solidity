@@ -3,12 +3,36 @@ pragma solidity ^0.8.9;
 
 interface IArtCollectibleContract {
 
-    function mintToken(string memory metadataUri, uint256 royalty) external returns (uint256);
+
+    /**
+     * @dev allow us to mint a new token
+     *
+     */
+    function mintToken(string memory metadataCid, uint256 royalty) external returns (uint256);
+
+    /**
+     * @dev Allows you to retrieve the list of tokens created by the `msg.sender`
+     *
+     */
     function getTokensCreatedByMe() external view returns (uint256[] memory);
+
+    /**
+     * @dev Allows you to retrieve the list of tokens owned by the `msg.sender`
+     *
+     */
     function getTokensOwnedByMe() external view returns (uint256[] memory);
+
+    /**
+     * @dev Allows you to retrieve the address of the creator of the token specified as a `tokenId` parameter
+     *
+     */
     function getTokenCreatorById(uint256 tokenId) external view returns (address);
+
+    /**
+     * @dev Allows you to retrieve an `ArtCollective` from the identifier `tokenId`
+     *
+     */
     function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory);
-    function updateOwner(uint256 tokenId, address newOwner) external;
 
     // Data Structure
     struct ArtCollectible {
