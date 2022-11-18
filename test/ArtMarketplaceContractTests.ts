@@ -23,5 +23,23 @@ describe("ArtMarketplaceContract", function () {
     expect(await instance.owner()).to.equal(owner.address)
   });
 
+  it("default cost of putting for sale", async function () {
+    const { instance } = await deployContractFixture()
+
+    const costOfPuttingForSale = await instance.costOfPuttingForSale()
+    const defaultCostOfPuttingForSale = await instance.DEFAULT_COST_OF_PUTTING_FOR_SALE()
+ 
+    expect(costOfPuttingForSale).to.equal(defaultCostOfPuttingForSale)
+  });
+
+  it("set cost of putting for sale", async function () {
+    const { instance } = await deployContractFixture()
+    const newCostOfPuttingForSale = 5
+
+    await instance.setCostOfPuttingForSale(newCostOfPuttingForSale)
+    const costOfPuttingForSale = await instance.costOfPuttingForSale()
+
+    expect(costOfPuttingForSale).to.equal(newCostOfPuttingForSale)
+  });
 
 });
