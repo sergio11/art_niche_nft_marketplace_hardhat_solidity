@@ -15,6 +15,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
+    address private _marketPlaceAddress;
     // Mapping to check if the metadata has been minted
     mapping(string => bool) private _hasBeenMinted;
     // Mapping to keep track of the Item
@@ -22,6 +23,11 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     mapping(uint256 => address) private _tokenCreators;
 
     constructor() ERC721("ArtCollectibleContract", "ACT") {}
+
+
+    function setMarketPlaceAddress(address marketPlaceAddress) external onlyOwner() {
+        _marketPlaceAddress = marketPlaceAddress;
+    }
 
     /**
      * @dev create an art collectible with a `metadata` for the msg.sender
@@ -38,6 +44,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, metadataCid);
+        approve(_marketPlaceAddress, tokenId);
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
@@ -93,7 +100,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
 
     function transferTokenTo(uint256 tokenId, address newOwner) external payable TokenMustExist(tokenId) {
         ArtCollectible storage token = _tokenIdToItem[tokenId];
-        safeTransferFrom(token.owner, newOwner, tokenId);
+        transferFrom(token.owner, newOwner, tokenId);
         token.owner = newOwner;
     }
 
