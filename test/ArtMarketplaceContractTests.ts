@@ -7,37 +7,47 @@ describe("ArtMarketplaceContract", function () {
     const [owner, addr1, addr2] = await ethers.getSigners()
     const utilsContractFactory = await ethers.getContractFactory("Utils")
     const utilsContractInstance = await utilsContractFactory.deploy()
+    const artCollectibleContractFactory = await ethers.getContractFactory("ArtCollectibleContract")
+    const artCollectibleContractInstance = await artCollectibleContractFactory.deploy()
     const artMarketplaceContractFactory = await ethers.getContractFactory("ArtMarketplaceContract", {
       libraries: {
         Utils: utilsContractInstance.address,
       },
     })
-    const instance = await artMarketplaceContractFactory.deploy()
-    await instance.deployed()
-    return { instance, owner, addr1, addr2 }
+    const artMarketplace = await artMarketplaceContractFactory.deploy()
+    artMarketplace.setArtCollectibleAddress(artCollectibleContractInstance.address)
+    await artMarketplace.deployed()
+    return { artMarketplace, artCollectibleContractInstance, owner, addr1, addr2 }
   }
 
-
   it("Should set the right owner", async function () {
-    const { instance, owner } = await deployContractFixture()
-    expect(await instance.owner()).to.equal(owner.address)
+    const { artMarketplace, owner } = await deployContractFixture()
+    expect(await artMarketplace.owner()).to.equal(owner.address)
+  });
+
+  it("Should set art collectible address", async function () {
+    const { artMarketplace, artCollectibleContractInstance, owner } = await deployContractFixture()
+
+    const artCollectibleAddr = await artMarketplace.connect(owner.address).getArtCollectibleAddress()
+
+    expect(artCollectibleAddr).to.equal(artCollectibleContractInstance.address)
   });
 
   it("default cost of putting for sale", async function () {
-    const { instance } = await deployContractFixture()
+    const { artMarketplace } = await deployContractFixture()
 
-    const costOfPuttingForSale = await instance.costOfPuttingForSale()
-    const defaultCostOfPuttingForSale = await instance.DEFAULT_COST_OF_PUTTING_FOR_SALE()
+    const costOfPuttingForSale = await artMarketplace.costOfPuttingForSale()
+    const defaultCostOfPuttingForSale = await artMarketplace.DEFAULT_COST_OF_PUTTING_FOR_SALE()
  
     expect(costOfPuttingForSale).to.equal(defaultCostOfPuttingForSale)
   });
 
   it("set cost of putting for sale", async function () {
-    const { instance } = await deployContractFixture()
+    const { artMarketplace } = await deployContractFixture()
     const newCostOfPuttingForSale = 5
 
-    await instance.setCostOfPuttingForSale(newCostOfPuttingForSale)
-    const costOfPuttingForSale = await instance.costOfPuttingForSale()
+    await artMarketplace.setCostOfPuttingForSale(newCostOfPuttingForSale)
+    const costOfPuttingForSale = await artMarketplace.costOfPuttingForSale()
 
     expect(costOfPuttingForSale).to.equal(newCostOfPuttingForSale)
   });

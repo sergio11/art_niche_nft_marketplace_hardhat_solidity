@@ -28,6 +28,10 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
     mapping (uint256 => ArtCollectibleForSale) private _tokensForSale;
 
 
+    function getArtCollectibleAddress() public view  onlyOwner() returns (address) {
+        return _artCollectibleAddress;
+    }
+
     function setArtCollectibleAddress(address artCollectibleAddress) public payable onlyOwner() {
        _artCollectibleAddress = artCollectibleAddress;
     }
@@ -46,9 +50,15 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
      * Emits a {Transfer} event - transfer the token to this smart contract.
      * Emits a {ArtCollectibleAddedForSale} event
      */
-    function putItemForSale(uint256 tokenId, uint256 price) external payable nonReentrant HasTransferApproval(tokenId) OnlyItemOwner(tokenId) ItemNotAlreadyAddedForSale(tokenId) returns (uint256) {
-        require(price > 0, "Price must be at least 1 wei");
-        require(msg.value == costOfPuttingForSale, "Price must be equal to listing price");
+    function putItemForSale(uint256 tokenId, uint256 price) external payable nonReentrant 
+        HasTransferApproval(tokenId) 
+        OnlyItemOwner(tokenId) 
+        ItemNotAlreadyAddedForSale(tokenId)
+        PriceMustBeAtLeastOneWei(price)
+        PriceMustBeEqualToListingPrice(msg.value)
+        returns (uint256) {
+        //send the token to the smart contract
+        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(tokenId, address(this));
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
         _tokensForSale[tokenId] = ArtCollectibleForSale(
@@ -61,8 +71,6 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
             false, 
             false 
         );
-        //send the token to the smart contract
-        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(tokenId, address(this));
         _hasBeenAddedForSale[tokenId] = true;
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
@@ -206,4 +214,13 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
         _;
     }
 
+    modifier PriceMustBeEqualToListingPrice(uint256 value) {
+        require(value == costOfPuttingForSale, "Price must be equal to listing price");
+        _;
+    }
+
+    modifier PriceMustBeAtLeastOneWei(uint256 price) {
+        require(price > 0, "Price must be at least 1 wei");
+        _;
+    }
 }
