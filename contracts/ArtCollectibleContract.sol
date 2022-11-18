@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "./IArtCollectibleContract.sol";
 
 /// @custom:security-contact dreamsoftware92@gmail.com
-contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable, ERC721Burnable, IArtCollectibleContract {
+contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable, Ownable, ERC721Burnable, IArtCollectibleContract {
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
@@ -22,7 +22,7 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
     mapping(uint256 => ArtCollectible) private _tokenIdToItem;
     mapping(uint256 => address) private _tokenCreators;
 
-    constructor() ERC721("ArtCollectible", "ACT") {}
+    constructor() ERC721("ArtCollectibleContract", "ACT") {}
 
 
     /**
@@ -100,6 +100,12 @@ contract ArtCollectible is ERC721, ERC721Enumerable, ERC721URIStorage, Pausable,
 
     function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory) {
         return _tokenIdToItem[tokenId];
+    }
+
+    function transferTokenTo(uint256 tokenId, address newOwner) external payable {
+        ArtCollectible storage token = _tokenIdToItem[tokenId];
+        safeTransferFrom(token.owner, newOwner, tokenId);
+        token.owner = newOwner;
     }
 
     function pause() public onlyOwner {

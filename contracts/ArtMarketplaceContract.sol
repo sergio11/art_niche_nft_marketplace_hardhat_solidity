@@ -4,14 +4,14 @@ pragma solidity ^0.8.9;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "./IArtMarketplace.sol";
+import "./IArtMarketplaceContract.sol";
 import "./IArtCollectibleContract.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Utils.sol";
 
 /// @custom:security-contact dreamsoftware92@gmail.com
-contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
+contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceContract {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
     using Utils for string;
@@ -56,13 +56,13 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
             tokenId, 
             payable(IArtCollectibleContract(_artCollectibleAddress).getTokenCreatorById(tokenId)), 
             payable(msg.sender), 
-            payable(address(0)), 
+            payable(address(this)), 
             price, 
             false, 
             false 
         );
-         //send the token to the smart contract
-        ERC721(_artCollectibleAddress).safeTransferFrom(msg.sender, address(this), tokenId);
+        //send the token to the smart contract
+        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(tokenId, address(this));
         _hasBeenAddedForSale[tokenId] = true;
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
@@ -77,9 +77,9 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
      * Emits a {Transfer} event - transfer the token from this smart contract to the owner.
      * Emits a {ArtCollectibleWithdrawnFromSale} event.
      */
-    function withdrawFromSale(uint256 tokenId) external OnlyItemOwner(tokenId) ItemAlreadyAddedForSale(tokenId) {
+    function withdrawFromSale(uint256 tokenId) external ItemAlreadyAddedForSale(tokenId) {
         //send the token from the smart contract back to the one who listed it
-        ERC721(_artCollectibleAddress).safeTransferFrom(address(this), msg.sender, tokenId);
+        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(tokenId, msg.sender);
         _tokensCanceled.increment();
         _tokensForSale[tokenId].owner = payable(msg.sender);
         _tokensForSale[tokenId].canceled = true;
@@ -98,19 +98,18 @@ contract ArtMarketplace is ReentrancyGuard, Ownable, IArtMarketplace {
      * Emits an {ArtCollectibleSold} event.
      */
     function buyItem(uint256 tokenId) external payable NotItemOwner(tokenId) ItemAlreadyAddedForSale(tokenId) {
-        IArtCollectibleContract.ArtCollectible memory item = IArtCollectibleContract(_artCollectibleAddress).getTokenById(tokenId);
+        IArtCollectibleContract.ArtCollectible memory token = IArtCollectibleContract(_artCollectibleAddress).getTokenById(tokenId);
         //split up the price between owner and creator
-        uint256 royaltyForCreator = item.royalty.mul(msg.value).div(100);
+        uint256 royaltyForCreator = token.royalty.mul(msg.value).div(100);
         uint256 remainder = msg.value.sub(royaltyForCreator);
         //send to creator
-        (bool isRoyaltySent, ) = item.creator.call{value: royaltyForCreator}("");
+        (bool isRoyaltySent, ) = token.creator.call{value: royaltyForCreator}("");
         require(isRoyaltySent, "An error ocurred when sending royalty to token creator");
         //send to owner
-        (bool isRemainderSent, ) = item.owner.call{value: remainder}("");
+        (bool isRemainderSent, ) = token.owner.call{value: remainder}("");
         require(isRemainderSent, "An error ocurred when sending remainder to token owner");
         //transfer the token from the smart contract back to the buyer
-        ERC721(_artCollectibleAddress).safeTransferFrom(address(this), msg.sender, tokenId);
-        item.owner = msg.sender;
+        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(tokenId, msg.sender);
         _tokensSold.increment();
         _tokensForSale[tokenId].owner = payable(msg.sender);
         _tokensForSale[tokenId].sold = true;
