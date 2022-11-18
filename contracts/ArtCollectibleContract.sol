@@ -15,7 +15,6 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     using Counters for Counters.Counter;
 
     Counters.Counter private _tokenIdCounter;
-    address private _marketplaceAddress;
     // Mapping to check if the metadata has been minted
     mapping(string => bool) private _hasBeenMinted;
     // Mapping to keep track of the Item
@@ -23,14 +22,6 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     mapping(uint256 => address) private _tokenCreators;
 
     constructor() ERC721("ArtCollectibleContract", "ACT") {}
-
-
-    /**
-     * @dev Configure address for ArtMarketplace contract
-     */
-    function setMarketplaceAddress(address marketplaceAddress) public payable onlyOwner() {
-       _marketplaceAddress = marketplaceAddress;
-    }
 
     /**
      * @dev create an art collectible with a `metadata` for the msg.sender
@@ -42,13 +33,11 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
      * Emits a {Transfer} event - comes from the ERC-721 smart contract.
      */
     function mintToken(string memory metadataCid, uint256 royalty) external override ItemNotMintedYet(metadataCid) ValidRoyaltyInterval(royalty) returns (uint256) {
-        ArtCollectible memory artCollectible = ArtCollectible(msg.sender, msg.sender, royalty);
+        ArtCollectible memory artCollectible = ArtCollectible(msg.sender, msg.sender, royalty, true);
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, metadataCid);
-        // Give the marketplace approval to transact NFTs between users
-        setApprovalForAll(_marketplaceAddress, true);
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
@@ -94,15 +83,15 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return ownedTokens;
     }
 
-    function getTokenCreatorById(uint256 tokenId) public view returns (address) {
+    function getTokenCreatorById(uint256 tokenId) public view TokenMustExist(tokenId) returns (address) {
         return _tokenCreators[tokenId];
     }
 
-    function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory) {
+    function getTokenById(uint256 tokenId) external view TokenMustExist(tokenId) returns (ArtCollectible memory) {
         return _tokenIdToItem[tokenId];
     }
 
-    function transferTokenTo(uint256 tokenId, address newOwner) external payable {
+    function transferTokenTo(uint256 tokenId, address newOwner) external payable TokenMustExist(tokenId) {
         ArtCollectible storage token = _tokenIdToItem[tokenId];
         safeTransferFrom(token.owner, newOwner, tokenId);
         token.owner = newOwner;
@@ -152,6 +141,11 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
 
     modifier ItemNotMintedYet(string memory metadataCid) {
         require(!_hasBeenMinted[metadataCid],"This metadata has already been used to mint an NFT.");
+        _;
+    }
+
+    modifier TokenMustExist(uint256 tokenId) {
+        require(_tokenIdToItem[tokenId].isExist, "There aren't any token with the token id specified");
         _;
     }
 

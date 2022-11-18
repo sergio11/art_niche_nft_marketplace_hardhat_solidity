@@ -42,6 +42,7 @@ interface IArtCollectibleContract {
         address owner;
         address creator;
         uint256 royalty;
+        bool isExist;
     }
 
     // Events Definitions

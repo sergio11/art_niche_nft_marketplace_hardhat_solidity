@@ -34,8 +34,7 @@ describe("ArtCollectibleContract", function () {
     expect(newOwnerBalance).to.equal(1)
     expect(events).not.be.null
     expect(events!![0]).to.equal("Transfer")
-    expect(events!![1]).to.equal("ApprovalForAll")
-    expect(events!![2]).to.equal("ArtCollectibleMinted")
+    expect(events!![1]).to.equal("ArtCollectibleMinted")
   
   });
 
@@ -127,6 +126,7 @@ describe("ArtCollectibleContract", function () {
     expect(token.owner).to.equal(addr1.address)
     expect(token.royalty).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(token.creator).to.equal(addr1.address)
+    expect(token.isExist).to.be.true
   });
 
   it("transfer token", async function () {
