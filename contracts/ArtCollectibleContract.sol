@@ -44,7 +44,8 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, metadataCid);
-        approve(_marketPlaceAddress, tokenId);
+        // Give the marketplace approval to transact NFTs between users
+        setApprovalForAll(_marketPlaceAddress, true);
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;

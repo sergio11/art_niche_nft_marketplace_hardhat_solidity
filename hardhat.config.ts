@@ -11,8 +11,14 @@ const config: HardhatUserConfig = {
       },
     },
   },
+  defaultNetwork: "ganache",
   networks: {
-    hardhat: {},
+    ganache: {
+      url: "http://127.0.0.1:7545",
+      allowUnlimitedContractSize: true,
+      gas: 2100000,
+      gasPrice: 8000000000
+    },
     mumbai: {
       url: `https://polygon-mumbai.g.alchemy.com/v2/${secret.projectId}`,
       accounts: [secret.accountPrivateKey]

@@ -69,7 +69,6 @@ contract ArtMarketplaceContract is
         external
         payable
         nonReentrant
-        HasTransferApproval(tokenId)
         OnlyItemOwner(tokenId)
         ItemNotAlreadyAddedForSale(tokenId)
         PriceMustBeAtLeastOneWei(price)
@@ -141,26 +140,26 @@ contract ArtMarketplaceContract is
         payable
         NotItemOwner(tokenId)
         ItemAlreadyAddedForSale(tokenId)
+        PriceMustBeEqualToItemPrice(tokenId, msg.value)
     {
         IArtCollectibleContract.ArtCollectible
             memory token = IArtCollectibleContract(_artCollectibleAddress)
                 .getTokenById(tokenId);
+
         //split up the price between owner and creator
         uint256 royaltyForCreator = token.royalty.mul(msg.value).div(100);
         uint256 remainder = msg.value.sub(royaltyForCreator);
         //send to creator
-        (bool isRoyaltySent, ) = token.creator.call{value: royaltyForCreator}(
-            ""
-        );
+        (bool isRoyaltySent, ) = _tokensForSale[tokenId].creator.call{value: royaltyForCreator}("");
         require(
             isRoyaltySent,
             "An error ocurred when sending royalty to token creator"
         );
         //send to owner
-        (bool isRemainderSent, ) = token.owner.call{value: remainder}("");
+        (bool isRemainderSent, ) = _tokensForSale[tokenId].seller.call{value: remainder}("");
         require(
             isRemainderSent,
-            "An error ocurred when sending remainder to token owner"
+            "An error ocurred when sending remainder to token seller"
         );
         //transfer the token from the smart contract back to the buyer
         IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(
@@ -298,19 +297,18 @@ contract ArtMarketplaceContract is
         _;
     }
 
-    modifier HasTransferApproval(uint256 tokenId) {
-        require(
-            ERC721(_artCollectibleAddress).getApproved(tokenId) ==
-                address(this),
-            "Market is not approved"
-        );
-        _;
-    }
-
     modifier PriceMustBeEqualToListingPrice(uint256 value) {
         require(
             value == costOfPuttingForSale,
             "Price must be equal to listing price"
+        );
+        _;
+    }
+
+    modifier PriceMustBeEqualToItemPrice(uint256 tokenId, uint256 value) {
+        require(
+            _tokensForSale[tokenId].price == value,
+            "Price must be equal to item price"
         );
         _;
     }

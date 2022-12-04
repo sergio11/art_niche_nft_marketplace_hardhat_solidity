@@ -34,7 +34,7 @@ describe("ArtCollectibleContract", function () {
     expect(newOwnerBalance).to.equal(1)
     expect(events).not.be.null
     expect(events!![0]).to.equal("Transfer")
-    expect(events!![1]).to.equal("Approval")
+    expect(events!![1]).to.equal("ApprovalForAll")
     expect(events!![2]).to.equal("ArtCollectibleMinted")
   
   });
@@ -58,7 +58,7 @@ describe("ArtCollectibleContract", function () {
     expect(initialOwnerBalance).to.equal(0)
     expect(newOwnerBalance).to.equal(initialOwnerBalance)
     expect(mintTokenErrorMessage).not.be.null
-    expect(mintTokenErrorMessage!!.message).to.equal("VM Exception while processing transaction: reverted with reason string 'Royalties must be between 0% and 40%.'")
+    expect(mintTokenErrorMessage!!.message).to.contain("Royalties must be between 0% and 40%.")
     
   });
 
@@ -84,7 +84,7 @@ describe("ArtCollectibleContract", function () {
     expect(addr2InitialOwnerBalance).to.equal(0)
     expect(addr2NewOwnerBalance).to.equal(addr2InitialOwnerBalance)
     expect(mintTokenErrorMessage).not.be.null
-    expect(mintTokenErrorMessage!!.message).to.equal("VM Exception while processing transaction: reverted with reason string 'This metadata has already been used to mint an NFT.'")
+    expect(mintTokenErrorMessage!!.message).to.contain("This metadata has already been used to mint an NFT.")
     
   });
 
