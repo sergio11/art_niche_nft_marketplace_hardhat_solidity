@@ -180,7 +180,7 @@ describe("ArtMarketplaceContract", function () {
   });
   
 
-  it("buy and sell item", async function () { 
+  it("resell item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
     const tokenPrice = 12
     const tokenId = 1
@@ -192,6 +192,7 @@ describe("ArtMarketplaceContract", function () {
     await artMarketplace.connect(addr2).buyItem(tokenId, {
       value: ethers.utils.formatUnits(tokenPrice, "wei")
     })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, tokenId);
     await artMarketplace.connect(addr2).putItemForSale(tokenId, tokenPrice, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
@@ -199,10 +200,12 @@ describe("ArtMarketplaceContract", function () {
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
     const addr2Balance = await artCollectibleContractInstance.balanceOf(addr2.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    const ownerOfToken = await artCollectibleContractInstance.ownerOf(tokenId)
 
     expect(markerBalance).to.equal(1)
     expect(addr1Balance).to.equal(0)
     expect(addr2Balance).to.equal(0)
+    expect(ownerOfToken).to.equal(artMarketplace.address)
     
   });
 

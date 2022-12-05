@@ -35,11 +35,8 @@ interface IArtCollectibleContract {
     function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory);
 
 
-    function transferTokenTo(uint256 tokenId, address newOwner) external payable;
-
     // Data Structure
     struct ArtCollectible {
-        address owner;
         address creator;
         uint256 royalty;
         bool isExist;

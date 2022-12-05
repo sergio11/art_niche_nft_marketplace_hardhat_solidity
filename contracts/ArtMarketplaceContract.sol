@@ -30,6 +30,8 @@ contract ArtMarketplaceContract is
     // Mapping to prevent the same item being listed twice
     mapping(uint256 => bool) private _hasBeenAddedForSale;
     mapping(uint256 => ArtCollectibleForSale) private _tokensForSale;
+    ArtCollectibleForSale[] private _marketHistory;
+
 
     function getArtCollectibleAddress()
         public
@@ -75,11 +77,9 @@ contract ArtMarketplaceContract is
         PriceMustBeEqualToListingPrice(msg.value)
         returns (uint256)
     {
+
         //send the token to the smart contract
-        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(
-            tokenId,
-            address(this)
-        );
+        IERC721(_artCollectibleAddress).transferFrom(msg.sender, address(this), tokenId);
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
         _tokensForSale[tokenId] = ArtCollectibleForSale(
@@ -114,14 +114,13 @@ contract ArtMarketplaceContract is
         ItemAlreadyAddedForSale(tokenId)
     {
         //send the token from the smart contract back to the one who listed it
-        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(
-            tokenId,
-            msg.sender
-        );
+        IERC721(_artCollectibleAddress).transferFrom(address(this), msg.sender, tokenId);
         _tokensCanceled.increment();
         _tokensForSale[tokenId].owner = payable(msg.sender);
         _tokensForSale[tokenId].canceled = true;
+        _marketHistory.push(_tokensForSale[tokenId]);
         delete _hasBeenAddedForSale[tokenId];
+        delete _tokensForSale[tokenId];
         emit ArtCollectibleWithdrawnFromSale(tokenId);
     }
 
@@ -162,14 +161,13 @@ contract ArtMarketplaceContract is
             "An error ocurred when sending remainder to token seller"
         );
         //transfer the token from the smart contract back to the buyer
-        IArtCollectibleContract(_artCollectibleAddress).transferTokenTo(
-            tokenId,
-            msg.sender
-        );
+        IERC721(_artCollectibleAddress).transferFrom(address(this), msg.sender, tokenId);
         _tokensSold.increment();
         _tokensForSale[tokenId].owner = payable(msg.sender);
         _tokensForSale[tokenId].sold = true;
+        _marketHistory.push(_tokensForSale[tokenId]);
         delete _hasBeenAddedForSale[tokenId];
+        delete _tokensForSale[tokenId];
         emit ArtCollectibleSold(tokenId, msg.sender, msg.value);
     }
 

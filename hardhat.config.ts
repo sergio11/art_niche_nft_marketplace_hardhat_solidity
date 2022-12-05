@@ -11,8 +11,8 @@ const config: HardhatUserConfig = {
       },
     },
   },
-  defaultNetwork: "ganache",
   networks: {
+    hardhat: {},
     ganache: {
       url: "http://127.0.0.1:7545",
       allowUnlimitedContractSize: true,

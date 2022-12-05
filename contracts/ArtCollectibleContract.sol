@@ -39,7 +39,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
      * Emits a {Transfer} event - comes from the ERC-721 smart contract.
      */
     function mintToken(string memory metadataCid, uint256 royalty) external override ItemNotMintedYet(metadataCid) ValidRoyaltyInterval(royalty) returns (uint256) {
-        ArtCollectible memory artCollectible = ArtCollectible(msg.sender, msg.sender, royalty, true);
+        ArtCollectible memory artCollectible = ArtCollectible(msg.sender, royalty, true);
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();
         _safeMint(msg.sender, tokenId);
@@ -97,12 +97,6 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
 
     function getTokenById(uint256 tokenId) external view TokenMustExist(tokenId) returns (ArtCollectible memory) {
         return _tokenIdToItem[tokenId];
-    }
-
-    function transferTokenTo(uint256 tokenId, address newOwner) external payable TokenMustExist(tokenId) {
-        ArtCollectible storage token = _tokenIdToItem[tokenId];
-        transferFrom(token.owner, newOwner, tokenId);
-        token.owner = newOwner;
     }
 
     function pause() public onlyOwner {

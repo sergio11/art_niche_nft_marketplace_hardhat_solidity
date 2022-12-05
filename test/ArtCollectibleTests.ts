@@ -94,13 +94,13 @@ describe("ArtCollectibleContract", function () {
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let tokensAddr1 = await instance.connect(addr1).getTokensOwnedByMe()
     let tokensAddr2 = await instance.connect(addr2).getTokensOwnedByMe()
-
+    let tokenOwner = await instance.connect(addr1).ownerOf(1)
 
     expect(tokensAddr1).not.be.empty
     expect(tokensAddr2).to.be.empty
+    expect(tokenOwner).to.equal(addr1.address)
     expect(tokensAddr1[0][0]).to.equal(addr1.address)
-    expect(tokensAddr1[0][1]).to.equal(addr1.address)
-    expect(tokensAddr1[0][2]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0][1]).to.equal(DEFAULT_TOKEN_ROYALTY)
   });
 
   it("get tokens created by me", async function () {
@@ -109,12 +109,13 @@ describe("ArtCollectibleContract", function () {
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let tokensAddr1 = await instance.connect(addr1).getTokensCreatedByMe()
     let tokensAddr2 = await instance.connect(addr2).getTokensCreatedByMe()
+    let tokenOwner = await instance.connect(addr1).ownerOf(1)
 
     expect(tokensAddr1).not.be.empty
     expect(tokensAddr2).to.be.empty
+    expect(tokenOwner).to.equal(addr1.address)
     expect(tokensAddr1[0][0]).to.equal(addr1.address)
-    expect(tokensAddr1[0][1]).to.equal(addr1.address)
-    expect(tokensAddr1[0][2]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0][1]).to.equal(DEFAULT_TOKEN_ROYALTY)
   });
 
   it("get token by id", async function () {
@@ -122,9 +123,10 @@ describe("ArtCollectibleContract", function () {
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let token = await instance.connect(addr1).getTokenById(1)
+    let tokenOwner = await instance.connect(addr1).ownerOf(1)
 
     expect(token).not.be.null
-    expect(token.owner).to.equal(addr1.address)
+    expect(tokenOwner).to.equal(addr1.address)
     expect(token.royalty).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(token.creator).to.equal(addr1.address)
     expect(token.isExist).to.be.true
@@ -135,15 +137,17 @@ describe("ArtCollectibleContract", function () {
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let tokenBeforeTrans = await instance.connect(addr1).getTokenById(1)
-    await instance.connect(addr1).transferTokenTo(1, addr2.address);
+    let tokenOwnerBeforeTrans = await instance.connect(addr1).ownerOf(1)
+    await instance.connect(addr1).transferFrom(addr1.address, addr2.address, 1);
     let tokenAfterTrans = await instance.connect(addr2).getTokenById(1)
+    let tokenOwnerAfterTrans = await instance.connect(addr2).ownerOf(1)
 
     expect(tokenBeforeTrans).not.be.null
-    expect(tokenBeforeTrans.owner).to.equal(addr1.address)
+    expect(tokenOwnerBeforeTrans).to.equal(addr1.address)
     expect(tokenBeforeTrans.royalty).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(tokenBeforeTrans.creator).to.equal(addr1.address)
     expect(tokenAfterTrans).not.be.null
-    expect(tokenAfterTrans.owner).to.equal(addr2.address)
+    expect(tokenOwnerAfterTrans).to.equal(addr2.address)
     expect(tokenAfterTrans.royalty).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(tokenAfterTrans.creator).to.equal(addr1.address)
   });
