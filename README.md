@@ -100,3 +100,7 @@ ArtCollectible contract deployed to 0xc341CC01DB1cA6A2Eb1C864EBC8a2AADe725D55e
 You can use the Remix IDE to interact with the contracts at those addresses:
 
 <img width="auto" src="./doc/remix_ide.PNG" />
+
+## Visitors Count
+
+<img width="auto" src="https://profile-counter.glitch.me/art_collectibles_marketplace/count.svg" />
