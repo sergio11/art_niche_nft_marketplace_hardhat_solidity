@@ -233,6 +233,27 @@ describe("ArtMarketplaceContract", function () {
     expect(errorMessage!!.message).to.contain("Price must be equal to item price")
   });
 
+  it("buy item - not provide price", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+
+    var errorMessage: Error | null = null
+    try {
+      await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID)
+    } catch(error) {
+      if (error instanceof Error) {
+        errorMessage = error
+      }
+    }
+
+    expect(errorMessage).not.be.null
+    expect(errorMessage!!.message).to.contain("Price must be equal to item price")
+  });
+
 
   it("buy item - Item hasn't beed added for sale", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()

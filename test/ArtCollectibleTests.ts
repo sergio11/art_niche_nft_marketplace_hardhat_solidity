@@ -14,6 +14,7 @@ describe("ArtCollectibleContract", function () {
 
   const DEFAULT_METADATA_CID = "1321323"
   const DEFAULT_TOKEN_ROYALTY = 20
+  const DEFAULT_TOKEN_ID = 1
 
   it("Should set the right owner", async function () {
     const { instance, owner } = await deployContractFixture()
@@ -76,6 +77,7 @@ describe("ArtCollectibleContract", function () {
         mintTokenErrorMessage = error
       }
     }
+
     const addr1NewOwnerBalance = await instance.balanceOf(addr1.address)
     const addr2NewOwnerBalance = await instance.balanceOf(addr2.address)
 
@@ -94,7 +96,7 @@ describe("ArtCollectibleContract", function () {
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let tokensAddr1 = await instance.connect(addr1).getTokensOwnedByMe()
     let tokensAddr2 = await instance.connect(addr2).getTokensOwnedByMe()
-    let tokenOwner = await instance.connect(addr1).ownerOf(1)
+    let tokenOwner = await instance.connect(addr1).ownerOf(DEFAULT_TOKEN_ID)
 
     expect(tokensAddr1).not.be.empty
     expect(tokensAddr2).to.be.empty
@@ -109,7 +111,7 @@ describe("ArtCollectibleContract", function () {
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     let tokensAddr1 = await instance.connect(addr1).getTokensCreatedByMe()
     let tokensAddr2 = await instance.connect(addr2).getTokensCreatedByMe()
-    let tokenOwner = await instance.connect(addr1).ownerOf(1)
+    let tokenOwner = await instance.connect(addr1).ownerOf(DEFAULT_TOKEN_ID)
 
     expect(tokensAddr1).not.be.empty
     expect(tokensAddr2).to.be.empty
@@ -122,8 +124,8 @@ describe("ArtCollectibleContract", function () {
     const { instance, addr1 } = await deployContractFixture()
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    let token = await instance.connect(addr1).getTokenById(1)
-    let tokenOwner = await instance.connect(addr1).ownerOf(1)
+    let token = await instance.connect(addr1).getTokenById(DEFAULT_TOKEN_ID)
+    let tokenOwner = await instance.connect(addr1).ownerOf(DEFAULT_TOKEN_ID)
 
     expect(token).not.be.null
     expect(tokenOwner).to.equal(addr1.address)
@@ -136,11 +138,11 @@ describe("ArtCollectibleContract", function () {
     const { instance, addr1, addr2 } = await deployContractFixture()
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    let tokenBeforeTrans = await instance.connect(addr1).getTokenById(1)
-    let tokenOwnerBeforeTrans = await instance.connect(addr1).ownerOf(1)
-    await instance.connect(addr1).transferFrom(addr1.address, addr2.address, 1);
-    let tokenAfterTrans = await instance.connect(addr2).getTokenById(1)
-    let tokenOwnerAfterTrans = await instance.connect(addr2).ownerOf(1)
+    let tokenBeforeTrans = await instance.connect(addr1).getTokenById(DEFAULT_TOKEN_ID)
+    let tokenOwnerBeforeTrans = await instance.connect(addr1).ownerOf(DEFAULT_TOKEN_ID)
+    await instance.connect(addr1).transferFrom(addr1.address, addr2.address, DEFAULT_TOKEN_ID);
+    let tokenAfterTrans = await instance.connect(addr2).getTokenById(DEFAULT_TOKEN_ID)
+    let tokenOwnerAfterTrans = await instance.connect(addr2).ownerOf(DEFAULT_TOKEN_ID)
 
     expect(tokenBeforeTrans).not.be.null
     expect(tokenOwnerBeforeTrans).to.equal(addr1.address)
@@ -151,4 +153,35 @@ describe("ArtCollectibleContract", function () {
     expect(tokenAfterTrans.royalty).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(tokenAfterTrans.creator).to.equal(addr1.address)
   });
+
+  it("burn token", async function () { 
+    const { instance, addr1 } = await deployContractFixture()
+
+    await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).burn(DEFAULT_TOKEN_ID)
+
+    var getTokenByIdErrorMessage: Error | null = null
+    try {
+      await instance.connect(addr1).getTokenById(DEFAULT_TOKEN_ID)
+    } catch(error) {
+      if (error instanceof Error) {
+        getTokenByIdErrorMessage = error
+      }
+    }
+
+    var ownerOfErrorMessage: Error | null = null
+    try {
+      await instance.connect(addr1).ownerOf(DEFAULT_TOKEN_ID)
+    } catch(error) {
+      if (error instanceof Error) {
+        ownerOfErrorMessage = error
+      }
+    }
+
+    expect(getTokenByIdErrorMessage).not.be.null
+    expect(getTokenByIdErrorMessage!!.message).to.contain("There aren't any token with the token id specified")
+    expect(ownerOfErrorMessage).not.be.null
+    expect(ownerOfErrorMessage!!.message).to.contain("ERC721: invalid token ID")
+  });
+
 });

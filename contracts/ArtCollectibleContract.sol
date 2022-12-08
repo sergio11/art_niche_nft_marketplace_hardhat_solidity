@@ -118,6 +118,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        _tokenIdToItem[tokenId].isExist = false;
         super._burn(tokenId);
     }
 
