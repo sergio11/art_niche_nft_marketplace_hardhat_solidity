@@ -83,3 +83,8 @@ You can target any network from your Hardhat config using:
 ```
 npx hardhat run --network <network-name> scripts/deploy.ts
 ```
+
+```
+ArtMarketplace contract deployed to 0xc9F57EA9418190f14bbF2d00E776462105ffe677
+ArtCollectible contract deployed to 0xc341CC01DB1cA6A2Eb1C864EBC8a2AADe725D55e
+```
