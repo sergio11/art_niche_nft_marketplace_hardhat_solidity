@@ -23,6 +23,8 @@ describe("ArtMarketplaceContract", function () {
 
   const DEFAULT_METADATA_CID = "1321323"
   const DEFAULT_TOKEN_ROYALTY = 20
+  const DEFAULT_TOKEN_PRICE = 12
+  const DEFAULT_TOKEN_ID = 1
 
   it("Should set the right owner", async function () {
     const { artMarketplace, owner } = await deployContractFixture()
@@ -58,13 +60,10 @@ describe("ArtMarketplaceContract", function () {
 
   it("put item for sale", async function () {
     const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
-
-    
+  
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
     const addr1BalanceBeforePutForSale = await artCollectibleContractInstance.balanceOf(addr1.address)
-    let tx = await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    let tx = await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
     let receipt = await tx.wait()
@@ -81,14 +80,12 @@ describe("ArtMarketplaceContract", function () {
 
   it("withdraw from sale", async function () {
     const { artMarketplace, artCollectibleContractInstance, addr1} = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
 
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
-    let tx = await artMarketplace.connect(addr1).withdrawFromSale(tokenId)
+    let tx = await artMarketplace.connect(addr1).withdrawFromSale(DEFAULT_TOKEN_ID)
     let receipt = await tx.wait()
     let events = receipt.events?.map((x) => x.event)
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
@@ -102,16 +99,14 @@ describe("ArtMarketplaceContract", function () {
 
   it("put item for sale - Sender does not own the item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
 
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
     var errorMessage: Error | null = null
     try {
-      await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+      await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
         value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
       })
     } catch(error) {
@@ -130,15 +125,13 @@ describe("ArtMarketplaceContract", function () {
 
   it("buy item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
 
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
-    let tx = await artMarketplace.connect(addr2).buyItem(tokenId, {
-      value: ethers.utils.formatUnits(tokenPrice, "wei")
+    let tx = await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
     })
     let receipt = await tx.wait()
     let events = receipt.events?.map((x) => x.event)
@@ -156,17 +149,15 @@ describe("ArtMarketplaceContract", function () {
 
   it("buy item - wrong price", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
 
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
 
     var errorMessage: Error | null = null
     try {
-      await artMarketplace.connect(addr2).buyItem(tokenId, {
+      await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
         value: ethers.utils.formatUnits(1, "wei")
       })
     } catch(error) {
@@ -182,25 +173,23 @@ describe("ArtMarketplaceContract", function () {
 
   it("resell item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
-
+  
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
-    await artMarketplace.connect(addr2).buyItem(tokenId, {
-      value: ethers.utils.formatUnits(tokenPrice, "wei")
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
     })
-    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, tokenId);
-    await artMarketplace.connect(addr2).putItemForSale(tokenId, tokenPrice, {
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
 
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
     const addr2Balance = await artCollectibleContractInstance.balanceOf(addr2.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
-    const ownerOfToken = await artCollectibleContractInstance.ownerOf(tokenId)
+    const ownerOfToken = await artCollectibleContractInstance.ownerOf(DEFAULT_TOKEN_ID)
 
     expect(markerBalance).to.equal(1)
     expect(addr1Balance).to.equal(0)
@@ -211,16 +200,83 @@ describe("ArtMarketplaceContract", function () {
 
   it("fetch available market items", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
-    const tokenPrice = 12
-    const tokenId = 1
 
     await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    await artMarketplace.connect(addr1).putItemForSale(tokenId, tokenPrice, {
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
-    let availableItems = await artMarketplace.connect(addr1).fetchAvailableMarketItems()
+    let availableItemsForAddr1 = await artMarketplace.connect(addr1).fetchAvailableMarketItems()
+    let availableItemsForAddr2 = await artMarketplace.connect(addr2).fetchAvailableMarketItems()
 
-    expect(availableItems).to.be.an('array').that.is.not.empty
+    expect(availableItemsForAddr1).to.be.an('array').that.is.not.empty
+    expect(availableItemsForAddr1).to.have.length(1)
+    expect(availableItemsForAddr2).to.be.an('array').that.is.not.empty
+    expect(availableItemsForAddr2).to.have.length(1)
+  });
+
+  it("fetch selling market items", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+    
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let sellingItemsForAddr1 = await artMarketplace.connect(addr1).fetchSellingMarketItems()
+    let sellingItemsForAddr2 = await artMarketplace.connect(addr2).fetchSellingMarketItems()
+
+    expect(sellingItemsForAddr1).to.be.an('array').that.is.not.empty
+    expect(sellingItemsForAddr1).to.have.length(1)
+    expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
+  });
+
+  it("fetch owned market items", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+    
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let sellingItemsForAddr1 = await artMarketplace.connect(addr1).fetchOwnedMarketItems()
+    let sellingItemsForAddr2 = await artMarketplace.connect(addr2).fetchOwnedMarketItems()
+    let sellingItemsForMarketplaceAddr = await artMarketplace.connect(artMarketplace.address).fetchOwnedMarketItems()
+
+    expect(sellingItemsForAddr1).to.be.an('array').that.is.empty
+    expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
+    expect(sellingItemsForMarketplaceAddr).to.be.an('array').that.is.not.empty
+    expect(sellingItemsForMarketplaceAddr).to.have.length(1)
+  });
+
+  it("fetch market history", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+  
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let marketHistory = await artMarketplace.fetchMarketHistory();
+
+    const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
+    const addr2Balance = await artCollectibleContractInstance.balanceOf(addr2.address)
+    const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    const ownerOfToken = await artCollectibleContractInstance.ownerOf(DEFAULT_TOKEN_ID)
+
+    expect(marketHistory).to.be.an('array').that.is.not.empty
+    expect(marketHistory).to.have.length(2)
+    expect(markerBalance).to.equal(0)
+    expect(addr1Balance).to.equal(1)
+    expect(addr2Balance).to.equal(0)
+    expect(ownerOfToken).to.equal(addr1.address)
   });
 
 });

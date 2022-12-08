@@ -222,6 +222,18 @@ contract ArtMarketplaceContract is
     }
 
     /**
+     * @dev Allow us to fetch market history
+     */
+    function fetchMarketHistory()
+        public
+        view
+        returns (ArtCollectibleForSale[] memory)
+    {
+        return _marketHistory;
+    }
+
+
+    /**
      * @dev Fetches market items according to the its requested address property that
      * can be "owner" or "seller".
      * See original: https://github.com/dabit3/polygon-ethereum-nextjs-marketplace/blob/main/contracts/Market.sol#L121
