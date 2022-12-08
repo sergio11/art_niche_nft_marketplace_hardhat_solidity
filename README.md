@@ -29,11 +29,17 @@ Complete UML diagram of decentralized application design.
 npm install
 ```
 
-## Testing the contract
+## Running the test suite
 
 ```
-npm test
+npx hardhat test
 ```
+<img width="auto" src="./doc/suite_test.PNG" />
+
+```
+npx hardhat --network ganache test
+```
+<img width="auto" src="./doc/suite_test_ganache.PNG" />
 
 ## Deploying the contract
 
