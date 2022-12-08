@@ -22,8 +22,17 @@ Complete UML diagram of decentralized application design.
 
 <img width="auto" src="./doc/art_collectibles_marketplace_diagram.svg" />
 
+## Configuring the project
 
-## Installing dependencies
+The first step is to clone the repository and execute the following command to install all the required modules
+
+```
+npm install
+```
+
+After that it will be necessary to create an account in Alchemy, infura or another similar service in order to configure the network on which the Dapp will be deployed.
+
+In my case, I have created a project in Alchemy and I have created a `secret.json` file to configure the deployment over the Mumbai testnet as you can see in the `hardhat.config.ts` file of the project:
 
 ```
 import { HardhatUserConfig } from "hardhat/config";
@@ -57,11 +66,6 @@ const config: HardhatUserConfig = {
 export default config;
 ```
 
-
-```
-npm install
-```
-
 ## Running the test suite
 
 The project has a set of tests to validate the correct behaviour of the contracts and the interaction between them.
@@ -79,7 +83,7 @@ npx hardhat --network ganache test
 ```
 <img width="auto" src="./doc/suite_test_ganache.PNG" />
 
-## Deploying the contract
+## Deploying contracts
 
 You can target any network from your Hardhat config using:
 
@@ -87,7 +91,12 @@ You can target any network from your Hardhat config using:
 npx hardhat run --network <network-name> scripts/deploy.ts
 ```
 
+The project has been deployed on the Mumbai testnet, the addresses of the contracts are as follows:
+
 ```
 ArtMarketplace contract deployed to 0xc9F57EA9418190f14bbF2d00E776462105ffe677
 ArtCollectible contract deployed to 0xc341CC01DB1cA6A2Eb1C864EBC8a2AADe725D55e
 ```
+You can use the Remix IDE to interact with the contracts at those addresses:
+
+<img width="auto" src="./doc/remix_ide.PNG" />
