@@ -123,6 +123,70 @@ describe("ArtMarketplaceContract", function () {
     expect(errorMessage!!.message).to.contain("Sender does not own the item")
   });
 
+  it("put item for sale - VoidSigner cannot sign transactions", async function () {
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+  
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    var errorMessage: Error | null = null
+    try {
+      await artMarketplace.connect(artMarketplace.address).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+        value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+      })
+    } catch(error) {
+      if (error instanceof Error) {
+        errorMessage = error
+      }
+    }
+
+    expect(errorMessage).not.be.null
+    expect(errorMessage!!.message).to.contain("VoidSigner cannot sign transactions")
+
+  });
+
+
+  it("put item for sale - Price must be equal to listing price", async function () {
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+  
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    
+    var errorMessage: Error | null = null
+    try {
+      await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE)
+    } catch(error) {
+      if (error instanceof Error) {
+        errorMessage = error
+      }
+    } 
+
+    expect(errorMessage).not.be.null
+    expect(errorMessage!!.message).to.contain("Price must be equal to listing price")
+
+  });
+
+  it("put item for sale - Price must be at least 1 wei", async function () {
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+  
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    
+    var errorMessage: Error | null = null
+    try {
+      await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, 0, {
+        value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+      })
+    } catch(error) {
+      if (error instanceof Error) {
+        errorMessage = error
+      }
+    } 
+
+    expect(errorMessage).not.be.null
+    expect(errorMessage!!.message).to.contain("Price must be at least 1 wei")
+
+  });
+
   it("buy item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 
@@ -146,7 +210,6 @@ describe("ArtMarketplaceContract", function () {
     expect(addr2Balance).to.equal(1)
   });
 
-
   it("buy item - wrong price", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 
@@ -169,8 +232,29 @@ describe("ArtMarketplaceContract", function () {
     expect(errorMessage).not.be.null
     expect(errorMessage!!.message).to.contain("Price must be equal to item price")
   });
-  
 
+
+  it("buy item - Item hasn't beed added for sale", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+  
+    var errorMessage: Error | null = null
+    try {
+      await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+        value: ethers.utils.formatUnits(1, "wei")
+      })
+    } catch(error) {
+      if (error instanceof Error) {
+        errorMessage = error
+      }
+    }
+
+    expect(errorMessage).not.be.null
+    expect(errorMessage!!.message).to.contain("Item hasn't beed added for sale")
+  });
+
+  
   it("resell item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
   
