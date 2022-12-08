@@ -38,7 +38,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
      *
      * Emits a {Transfer} event - comes from the ERC-721 smart contract.
      */
-    function mintToken(string memory metadataCid, uint256 royalty) external override ItemNotMintedYet(metadataCid) ValidRoyaltyInterval(royalty) returns (uint256) {
+    function mintToken(string memory metadataCid, uint256 royalty) external override whenNotPaused() ItemNotMintedYet(metadataCid) ValidRoyaltyInterval(royalty) returns (uint256) {
         ArtCollectible memory artCollectible = ArtCollectible(msg.sender, royalty, true);
         _tokenIdCounter.increment();
         uint256 tokenId = _tokenIdCounter.current();

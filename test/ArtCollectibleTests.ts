@@ -184,4 +184,26 @@ describe("ArtCollectibleContract", function () {
     expect(ownerOfErrorMessage!!.message).to.contain("ERC721: invalid token ID")
   });
 
+  it("pause contract", async function () { 
+    const { instance, addr1 } = await deployContractFixture()
+
+    await instance.pause()
+
+    var errorMessage: Error | null = null
+    try {
+      await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    } catch(error) {
+      if (error instanceof Error) {
+        errorMessage = error
+      }
+    }
+
+    let isPaused = await instance.paused()
+
+    expect(isPaused).to.be.true
+    expect(errorMessage).not.be.null
+    expect(errorMessage!!.message).to.contain("Pausable: paused")
+    
+  });
+
 });
