@@ -64,6 +64,8 @@ npm install
 
 ## Running the test suite
 
+The project has a set of tests to validate the correct behaviour of the contracts and the interaction between them:
+
 ```
 npx hardhat test
 ```
