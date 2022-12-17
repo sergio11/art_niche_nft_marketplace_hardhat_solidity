@@ -104,3 +104,11 @@ You can use the Remix IDE to interact with the contracts at those addresses:
 ## Visitors Count
 
 <img width="auto" src="https://profile-counter.glitch.me/art_collectibles_marketplace/count.svg" />
+
+## Please Share & Star the repository to keep me motivated.
+  <a href = "https://github.com/sergio11/art_collectibles_marketplace/stargazers">
+     <img src = "https://img.shields.io/github/stars/sergio11/art_collectibles_marketplace" />
+  </a>
+  <a href = "https://twitter.com/SergioReact418">
+     <img src = "https://img.shields.io/twitter/url?label=follow&style=social&url=https%3A%2F%2Ftwitter.com%2FSergioReact418" />
+  </a>
