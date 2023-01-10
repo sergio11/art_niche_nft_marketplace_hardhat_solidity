@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract FaucetContract is Ownable, IFaucetContract {
 
-    uint private _initialAmount = 400000000 gwei;
+    uint private _initialAmount = 0.2 ether;
     mapping(address => bool) private accountsAlreadyFunded;
     
     // Public API
@@ -29,6 +29,7 @@ contract FaucetContract is Ownable, IFaucetContract {
     }
 
     function requestSeedFunds() public override accountHasNotAlreadyFunded(msg.sender) {
+
         payable(msg.sender).transfer(_initialAmount);
         accountsAlreadyFunded[msg.sender] = true;
         emit OnRequestSeedFunds(msg.sender, _initialAmount);
