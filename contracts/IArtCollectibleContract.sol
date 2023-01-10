@@ -37,8 +37,10 @@ interface IArtCollectibleContract {
 
     // Data Structure
     struct ArtCollectible {
+        uint256 tokenId;
         address creator;
         uint256 royalty;
+        string metadataCID;
         bool isExist;
     }
 
