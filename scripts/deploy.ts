@@ -2,6 +2,8 @@ import { ethers } from "hardhat";
 
 async function main() {
 
+  const faucetContractFactory = await ethers.getContractFactory("FaucetContract")
+  const faucetContractInstance = await faucetContractFactory.deploy()
   const utilsContractFactory = await ethers.getContractFactory("Utils")
   const utilsContractInstance = await utilsContractFactory.deploy()
   const artCollectibleContractFactory = await ethers.getContractFactory("ArtCollectibleContract")
@@ -16,6 +18,7 @@ async function main() {
   await artCollectibleContractInstance.setMarketPlaceAddress(artMarketplace.address)
   await artMarketplace.deployed()
 
+  console.log(`Faucet contract deployed to ${faucetContractInstance.address}`)
   console.log(`ArtMarketplace contract deployed to ${artMarketplace.address}`);
   console.log(`ArtCollectible contract deployed to ${artCollectibleContractInstance.address}`);
 }

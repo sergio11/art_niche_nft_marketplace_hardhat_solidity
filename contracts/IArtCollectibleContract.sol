@@ -11,10 +11,22 @@ interface IArtCollectibleContract {
     function mintToken(string memory metadataCid, uint256 royalty) external returns (uint256);
 
     /**
+     * @dev Allows you to retrieve the list of tokens created by the `creatorAddress`
+     *
+     */
+    function getTokensCreatedBy(address creatorAddress) external view returns (ArtCollectible[] memory);
+
+    /**
      * @dev Allows you to retrieve the list of tokens created by the `msg.sender`
      *
      */
     function getTokensCreatedByMe() external view returns (ArtCollectible[] memory);
+
+    /**
+     * @dev Allows you to retrieve the list of tokens owned by the `ownedAddress`
+     *
+     */
+    function getTokensOwnedBy(address ownedAddress) external view returns (ArtCollectible[] memory);
 
     /**
      * @dev Allows you to retrieve the list of tokens owned by the `msg.sender`
