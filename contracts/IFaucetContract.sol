@@ -4,6 +4,7 @@ pragma solidity ^0.8.9;
 interface IFaucetContract { 
 
     function deposit() external payable returns(bool success);
+    function getAmount() external view returns(uint amount);
     function getInitialAmount() external view returns(uint amount);
     function setInitialAmount(uint amount) external;
     function sendFunds(address payable account, uint amount) external;

@@ -15,6 +15,10 @@ contract FaucetContract is Ownable, IFaucetContract {
         return true;
     }
 
+    function getAmount() external view returns(uint amount) {
+        return address(this).balance;
+    }
+
     function getInitialAmount() public override view onlyOwner returns(uint amount) {
         return _initialAmount;
     }

@@ -52,6 +52,18 @@ describe("FaucetContractContract", function () {
     expect(initialAmout).to.equal(DEFAULT_INITIAL_AMOUNT)
   })
 
+  it("get amount", async function () {
+    const { instance, owner } = await deployContractFixture()
+
+    await instance.connect(owner).deposit({
+      value: DEFAULT_AMOUT_TO_DEPOSIT_IN_ETHER
+    })
+    let currentAmount = await instance.connect(owner).getAmount()
+    
+    expect(currentAmount).to.equal(DEFAULT_AMOUT_TO_DEPOSIT_IN_ETHER)
+  })
+
+
   it("set initial amount", async function () {
     const { instance, owner } = await deployContractFixture()
     let newInitialAmout = "400000000000000000"
