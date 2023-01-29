@@ -126,8 +126,9 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         uint256 currentIndex = 0;
         for (uint256 i = 0; i < numberOfExistingTokens; i++) {
             uint256 tokenId = i + 1;
-            if (ownerOf(tokenId) != ownerAddress) continue;
-            ownedTokens[currentIndex] = _tokenIdToItem[tokenId];
+            ArtCollectible memory token = _tokenIdToItem[tokenId];
+            if (!token.isExist || ownerOf(tokenId) != ownerAddress) continue;
+            ownedTokens[currentIndex] = token;
             currentIndex += 1;
         }
 

@@ -192,7 +192,9 @@ describe("ArtCollectibleContract", function () {
     const { instance, addr1 } = await deployContractFixture()
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    let tokensOwnedByMeBeforeBurning = await instance.connect(addr1).getTokensOwnedByMe()
     await instance.connect(addr1).burn(DEFAULT_TOKEN_ID)
+    let tokensOwnedByMeAfterBurning = await instance.connect(addr1).getTokensOwnedByMe()
 
     var getTokenByIdErrorMessage: Error | null = null
     try {
@@ -212,6 +214,8 @@ describe("ArtCollectibleContract", function () {
       }
     }
 
+    expect(tokensOwnedByMeBeforeBurning).not.to.be.empty
+    expect(tokensOwnedByMeAfterBurning).to.be.empty
     expect(getTokenByIdErrorMessage).not.be.null
     expect(getTokenByIdErrorMessage!!.message).to.contain("There aren't any token with the token id specified")
     expect(ownerOfErrorMessage).not.be.null
