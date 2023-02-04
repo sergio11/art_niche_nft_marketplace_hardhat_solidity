@@ -70,10 +70,12 @@ describe("ArtMarketplaceContract", function () {
     let events = receipt.events?.map((x) => x.event)
     const addr1BalanceAfterPutForSale = await artCollectibleContractInstance.balanceOf(addr1.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    let isItemAddedForSale = await artMarketplace.isTokenAddedForSale(DEFAULT_TOKEN_ID)
 
     expect(addr1BalanceBeforePutForSale).to.be.equal(1)
     expect(addr1BalanceAfterPutForSale).to.be.equal(0)
     expect(markerBalance).to.be.equal(1)
+    expect(isItemAddedForSale).to.be.true
     expect(events).to.be.an('array').that.is.not.empty
     expect(events!![1]).to.equal("ArtCollectibleAddedForSale")
   });
@@ -90,10 +92,12 @@ describe("ArtMarketplaceContract", function () {
     let events = receipt.events?.map((x) => x.event)
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    let isItemAddedForSale = await artMarketplace.isTokenAddedForSale(DEFAULT_TOKEN_ID)
 
     expect(markerBalance).to.equal(0)
     expect(addr1Balance).to.equal(1)
     expect(events).to.be.an('array').that.is.not.empty
+    expect(isItemAddedForSale).to.be.false
     expect(events!![1]).to.equal("ArtCollectibleWithdrawnFromSale")
   });
 
@@ -312,11 +316,40 @@ describe("ArtMarketplaceContract", function () {
     })
     let availableItemsForAddr1 = await artMarketplace.connect(addr1).fetchAvailableMarketItems()
     let availableItemsForAddr2 = await artMarketplace.connect(addr2).fetchAvailableMarketItems()
-
+    let countAvailableItems = await artMarketplace.connect(addr1).countAvailableMarketItems()
+   
+    expect(countAvailableItems).to.be.equal(1)
     expect(availableItemsForAddr1).to.be.an('array').that.is.not.empty
     expect(availableItemsForAddr1).to.have.length(1)
     expect(availableItemsForAddr2).to.be.an('array').that.is.not.empty
     expect(availableItemsForAddr2).to.have.length(1)
+    expect(availableItemsForAddr1[0]["marketItemId"]).to.be.equal(1)
+    expect(availableItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(availableItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
+    expect(availableItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
+    expect(availableItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
+    expect(availableItemsForAddr1[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(availableItemsForAddr1[0]["sold"]).to.be.false
+    expect(availableItemsForAddr1[0]["canceled"]).to.be.false
+  });
+
+  it("fetch item for sale detail", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let itemForSaleDetail = await artMarketplace.connect(addr1).fetchItemForSale(DEFAULT_TOKEN_ID)
+
+    expect(itemForSaleDetail["marketItemId"]).to.be.equal(1)
+    expect(itemForSaleDetail["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(itemForSaleDetail["creator"]).to.be.equal(addr1.address)
+    expect(itemForSaleDetail["seller"]).to.be.equal(addr1.address)
+    expect(itemForSaleDetail["owner"]).to.be.equal(artMarketplace.address)
+    expect(itemForSaleDetail["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(itemForSaleDetail["sold"]).to.be.false
+    expect(itemForSaleDetail["canceled"]).to.be.false
   });
 
   it("fetch selling market items", async function () {  
@@ -332,6 +365,14 @@ describe("ArtMarketplaceContract", function () {
     expect(sellingItemsForAddr1).to.be.an('array').that.is.not.empty
     expect(sellingItemsForAddr1).to.have.length(1)
     expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
+    expect(sellingItemsForAddr1[0]["marketItemId"]).to.be.equal(1)
+    expect(sellingItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(sellingItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
+    expect(sellingItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
+    expect(sellingItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
+    expect(sellingItemsForAddr1[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(sellingItemsForAddr1[0]["sold"]).to.be.false
+    expect(sellingItemsForAddr1[0]["canceled"]).to.be.false
   });
 
   it("fetch owned market items", async function () {  
@@ -341,14 +382,23 @@ describe("ArtMarketplaceContract", function () {
     await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
       value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
     })
-    let sellingItemsForAddr1 = await artMarketplace.connect(addr1).fetchOwnedMarketItems()
-    let sellingItemsForAddr2 = await artMarketplace.connect(addr2).fetchOwnedMarketItems()
-    let sellingItemsForMarketplaceAddr = await artMarketplace.connect(artMarketplace.address).fetchOwnedMarketItems()
+    let ownedMarketItemsForAddr1 = await artMarketplace.connect(addr1).fetchOwnedMarketItems()
+    let ownedMarketItemsForAddr2 = await artMarketplace.connect(addr2).fetchOwnedMarketItems()
+    let ownedMarketItemsForMarketplaceAddr = await artMarketplace.connect(artMarketplace.address).fetchOwnedMarketItems()
 
-    expect(sellingItemsForAddr1).to.be.an('array').that.is.empty
-    expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
-    expect(sellingItemsForMarketplaceAddr).to.be.an('array').that.is.not.empty
-    expect(sellingItemsForMarketplaceAddr).to.have.length(1)
+
+    expect(ownedMarketItemsForAddr1).to.be.an('array').that.is.empty
+    expect(ownedMarketItemsForAddr2).to.be.an('array').that.is.empty
+    expect(ownedMarketItemsForMarketplaceAddr).to.be.an('array').that.is.not.empty
+    expect(ownedMarketItemsForMarketplaceAddr).to.have.length(1)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["marketItemId"]).to.be.equal(1)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["creator"]).to.be.equal(addr1.address)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["seller"]).to.be.equal(addr1.address)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["owner"]).to.be.equal(artMarketplace.address)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["sold"]).to.be.false
+    expect(ownedMarketItemsForMarketplaceAddr[0]["canceled"]).to.be.false
   });
 
   it("fetch market history", async function () {  

@@ -17,6 +17,11 @@ interface IArtMarketplaceContract {
     function putItemForSale(uint256 tokenId, uint256 price) external payable returns (uint256);
 
     /**
+    * @dev is token added for sale
+    */
+    function isTokenAddedForSale(uint256 tokenId) external view returns (bool);
+
+    /**
      * @dev Cancel a listing of an item with a `tokenId`
      *
      * Requirements:
@@ -26,7 +31,11 @@ interface IArtMarketplaceContract {
      * Emits a {ArtCollectibleWithdrawnFromSale} event.
      */
     function withdrawFromSale(uint256 tokenId) external;
-    
+
+    /**
+     * @dev Fetch item for sale
+     */
+    function fetchItemForSale(uint256 tokenId) external view returns (ArtCollectibleForSale memory);
     
     /**
      * @dev Buy an item with a `tokenId` and pay the owner and the creator
@@ -44,6 +53,11 @@ interface IArtMarketplaceContract {
      * @dev Fetch non sold and non canceled market items
      */
     function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory);
+
+    /**
+     * @dev Count non sold and non canceled market items
+     */
+    function countAvailableMarketItems() external view returns (uint256);
 
     /**
      * @dev Fetch market items that are being listed by the msg.sender

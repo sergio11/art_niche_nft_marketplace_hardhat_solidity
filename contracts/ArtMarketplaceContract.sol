@@ -31,6 +31,7 @@ contract ArtMarketplaceContract is
     mapping(uint256 => bool) private _hasBeenAddedForSale;
     mapping(uint256 => ArtCollectibleForSale) private _tokensForSale;
     ArtCollectibleForSale[] private _marketHistory;
+    mapping(uint256 => uint256) private _tokenForSaleMarketItemId;
 
 
     function getArtCollectibleAddress()
@@ -82,7 +83,7 @@ contract ArtMarketplaceContract is
         IERC721(_artCollectibleAddress).transferFrom(msg.sender, address(this), tokenId);
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
-        _tokensForSale[tokenId] = ArtCollectibleForSale(
+        _tokensForSale[marketItemId] = ArtCollectibleForSale(
             marketItemId,
             tokenId,
             payable(
@@ -95,9 +96,17 @@ contract ArtMarketplaceContract is
             false,
             false
         );
+        _tokenForSaleMarketItemId[tokenId] = marketItemId;
         _hasBeenAddedForSale[tokenId] = true;
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
+    }
+
+    /**
+    * @dev is token added for sale
+    */
+    function isTokenAddedForSale(uint256 tokenId) external view returns (bool) {
+        return _hasBeenAddedForSale[tokenId];
     }
 
     /**
@@ -116,12 +125,22 @@ contract ArtMarketplaceContract is
         //send the token from the smart contract back to the one who listed it
         IERC721(_artCollectibleAddress).transferFrom(address(this), msg.sender, tokenId);
         _tokensCanceled.increment();
-        _tokensForSale[tokenId].owner = payable(msg.sender);
-        _tokensForSale[tokenId].canceled = true;
-        _marketHistory.push(_tokensForSale[tokenId]);
+        uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+        _tokensForSale[marketId].owner = payable(msg.sender);
+        _tokensForSale[marketId].canceled = true;
+        _marketHistory.push(_tokensForSale[marketId]);
         delete _hasBeenAddedForSale[tokenId];
         delete _tokensForSale[tokenId];
+        delete _tokenForSaleMarketItemId[tokenId];
         emit ArtCollectibleWithdrawnFromSale(tokenId);
+    }
+
+    /**
+     * @dev Fetch item for sale
+     */
+    function fetchItemForSale(uint256 tokenId) external ItemAlreadyAddedForSale(tokenId) view returns (ArtCollectibleForSale memory) {
+        uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+        return _tokensForSale[marketId];
     }
 
     /**
@@ -163,12 +182,25 @@ contract ArtMarketplaceContract is
         //transfer the token from the smart contract back to the buyer
         IERC721(_artCollectibleAddress).transferFrom(address(this), msg.sender, tokenId);
         _tokensSold.increment();
-        _tokensForSale[tokenId].owner = payable(msg.sender);
-        _tokensForSale[tokenId].sold = true;
-        _marketHistory.push(_tokensForSale[tokenId]);
+        uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+        _tokensForSale[marketId].owner = payable(msg.sender);
+        _tokensForSale[marketId].sold = true;
+        _marketHistory.push(_tokensForSale[marketId]);
         delete _hasBeenAddedForSale[tokenId];
         delete _tokensForSale[tokenId];
+        delete _tokenForSaleMarketItemId[tokenId];
         emit ArtCollectibleSold(tokenId, msg.sender, msg.value);
+    }
+
+    /**
+     * @dev Count non sold and non canceled market items
+     */
+    function countAvailableMarketItems() external view returns (uint256) {
+        uint256 itemsCount = _marketItemIds.current();
+        uint256 soldItemsCount = _tokensSold.current();
+        uint256 canceledItemsCount = _tokensCanceled.current();
+        uint256 availableItemsCount = itemsCount - soldItemsCount - canceledItemsCount;
+        return availableItemsCount;
     }
 
     /**
@@ -192,7 +224,7 @@ contract ArtMarketplaceContract is
         uint256 currentIndex = 0;
         for (uint256 i = 0; i < itemsCount; i++) {
             ArtCollectibleForSale memory item = _tokensForSale[i + 1];
-            if (item.owner != address(0)) continue;
+            if (item.sold || item.canceled) continue;
             marketItems[currentIndex] = item;
             currentIndex += 1;
         }
@@ -317,7 +349,7 @@ contract ArtMarketplaceContract is
 
     modifier PriceMustBeEqualToItemPrice(uint256 tokenId, uint256 value) {
         require(
-            _tokensForSale[tokenId].price == value,
+            _tokensForSale[_tokenForSaleMarketItemId[tokenId]].price == value,
             "Price must be equal to item price"
         );
         _;
