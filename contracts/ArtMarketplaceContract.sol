@@ -204,6 +204,20 @@ contract ArtMarketplaceContract is
     }
 
     /**
+     * @dev Count sold market items
+     */
+    function countSoldMarketItems() external view returns (uint256) {
+        return _tokensSold.current();
+    }
+
+    /**
+     * @dev Count canceled market items
+     */
+    function countCanceledMarketItems() external view returns (uint256) {
+        return _tokensCanceled.current();
+    }
+
+    /**
      * @dev Fetch non sold and non canceled market items
      */
     function fetchAvailableMarketItems()

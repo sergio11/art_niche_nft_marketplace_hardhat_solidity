@@ -93,9 +93,12 @@ describe("ArtMarketplaceContract", function () {
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
     let isItemAddedForSale = await artMarketplace.isTokenAddedForSale(DEFAULT_TOKEN_ID)
+    let countCanceledMarketItems = await artMarketplace.connect(addr1).countCanceledMarketItems();
+    
 
     expect(markerBalance).to.equal(0)
     expect(addr1Balance).to.equal(1)
+    expect(countCanceledMarketItems).to.equal(1)
     expect(events).to.be.an('array').that.is.not.empty
     expect(isItemAddedForSale).to.be.false
     expect(events!![1]).to.equal("ArtCollectibleWithdrawnFromSale")
@@ -206,10 +209,12 @@ describe("ArtMarketplaceContract", function () {
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
     const addr2Balance = await artCollectibleContractInstance.balanceOf(addr2.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    let countSoldMarketItems = await artMarketplace.connect(addr1).countSoldMarketItems();
 
     expect(events).to.be.an('array').that.is.not.empty
     expect(events!![1]).to.equal("ArtCollectibleSold")
     expect(markerBalance).to.equal(0)
+    expect(countSoldMarketItems).to.equal(1)
     expect(addr1Balance).to.equal(0)
     expect(addr2Balance).to.equal(1)
   });

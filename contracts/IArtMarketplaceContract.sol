@@ -60,6 +60,16 @@ interface IArtMarketplaceContract {
     function countAvailableMarketItems() external view returns (uint256);
 
     /**
+     * @dev Count sold market items
+     */
+    function countSoldMarketItems() external view returns (uint256);
+
+    /**
+     * @dev Count canceled market items
+     */
+    function countCanceledMarketItems() external view returns (uint256);
+
+    /**
      * @dev Fetch market items that are being listed by the msg.sender
      */
     function fetchSellingMarketItems() external view returns (ArtCollectibleForSale[] memory);
