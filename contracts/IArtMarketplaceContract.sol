@@ -80,6 +80,11 @@ interface IArtMarketplaceContract {
     function fetchOwnedMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
     /**
+     * @dev Fetch market items that are created by the msg.sender
+     */
+    function fetchCreatedMarketItems() external view returns (ArtCollectibleForSale[] memory);
+
+    /**
      * @dev Allow us to fetch market history
      */
     function fetchMarketHistory() external view returns (ArtCollectibleForSale[] memory);

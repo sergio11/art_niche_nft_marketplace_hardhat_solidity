@@ -237,10 +237,14 @@ contract ArtMarketplaceContract is
             );
         uint256 currentIndex = 0;
         for (uint256 i = 0; i < itemsCount; i++) {
-            ArtCollectibleForSale memory item = _tokensForSale[i + 1];
-            if (item.sold || item.canceled) continue;
-            marketItems[currentIndex] = item;
-            currentIndex += 1;
+            uint256 tokenId = i + 1;
+            if(_hasBeenAddedForSale[tokenId]) {
+                uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+                ArtCollectibleForSale memory item = _tokensForSale[marketId];
+                marketItems[currentIndex] = item;
+                currentIndex += 1;
+            }
+            
         }
         return marketItems;
     }
@@ -268,6 +272,17 @@ contract ArtMarketplaceContract is
     }
 
     /**
+     * @dev Fetch market items that are created by the msg.sender
+     */
+    function fetchCreatedMarketItems()
+        external 
+        view 
+        returns (ArtCollectibleForSale[] memory) 
+    {
+        return _fetchMarketItemsByAddressProperty("creator");
+    }
+
+    /**
      * @dev Allow us to fetch market history
      */
     function fetchMarketHistory()
@@ -291,18 +306,22 @@ contract ArtMarketplaceContract is
     {
         require(
             _addressProperty.compareStrings("seller") ||
-                _addressProperty.compareStrings("owner"),
-            "Parameter must be 'seller' or 'owner'"
+                _addressProperty.compareStrings("owner") || 
+                _addressProperty.compareStrings("creator"),
+            "Parameter must be 'seller', 'owner' or 'creator'"
         );
         uint256 totalItemsCount = _marketItemIds.current();
         uint256 itemCount = 0;
         uint256 currentIndex = 0;
         for (uint256 i = 0; i < totalItemsCount; i++) {
-            address addressPropertyValue = _addressProperty.compareStrings(
-                "seller"
-            )
-                ? _tokensForSale[i + 1].seller
-                : _tokensForSale[i + 1].owner;
+            address addressPropertyValue;
+            if(_addressProperty.compareStrings("seller")) {
+                addressPropertyValue = _tokensForSale[i + 1].seller;
+            } else if(_addressProperty.compareStrings("owner")) {
+                addressPropertyValue = _tokensForSale[i + 1].owner;
+            } else {
+                addressPropertyValue = _tokensForSale[i + 1].creator;
+            }
             if (addressPropertyValue != msg.sender) continue;
             itemCount += 1;
         }
@@ -311,11 +330,14 @@ contract ArtMarketplaceContract is
         );
         for (uint256 i = 0; i < totalItemsCount; i++) {
             ArtCollectibleForSale storage item = _tokensForSale[i + 1];
-            address addressPropertyValue = _addressProperty.compareStrings(
-                "seller"
-            )
-                ? item.seller
-                : item.owner;
+            address addressPropertyValue;
+            if(_addressProperty.compareStrings("seller")) {
+                addressPropertyValue = item.seller;
+            } else if(_addressProperty.compareStrings("owner")) {
+                addressPropertyValue = item.owner;
+            } else {
+                addressPropertyValue = item.creator;
+            }    
             if (addressPropertyValue != msg.sender) continue;
             items[currentIndex] = item;
             currentIndex += 1;
