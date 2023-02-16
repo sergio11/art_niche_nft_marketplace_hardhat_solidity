@@ -683,4 +683,49 @@ describe("ArtMarketplaceContract", function () {
     expect(countTokenWithdrawnAddr2).to.equal(1)
   })
 
+  it("fetch last market history items", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let lastMarketHistoryItems = await artMarketplace.fetchLastMarketHistoryItems(2)
+
+
+
+    expect(lastMarketHistoryItems).to.be.an('array').that.is.not.empty
+    expect(lastMarketHistoryItems).to.have.length(2)
+    expect(lastMarketHistoryItems[0]["marketItemId"]).to.equal(2)
+    expect(lastMarketHistoryItems[0]["tokenId"]).to.equal(1)
+    expect(lastMarketHistoryItems[0]["creator"]).to.equal(addr1.address)
+    expect(lastMarketHistoryItems[0]["seller"]).to.equal(addr2.address)
+    expect(lastMarketHistoryItems[0]["owner"]).to.equal(addr1.address)
+    expect(lastMarketHistoryItems[0]["price"]).to.equal(12)
+    expect(lastMarketHistoryItems[0]["sold"]).to.be.true
+    expect(lastMarketHistoryItems[0]["canceled"]).to.be.false
+    expect(lastMarketHistoryItems[1]["marketItemId"]).to.equal(1)
+    expect(lastMarketHistoryItems[1]["tokenId"]).to.equal(1)
+    expect(lastMarketHistoryItems[1]["creator"]).to.equal(addr1.address)
+    expect(lastMarketHistoryItems[1]["seller"]).to.equal(addr1.address)
+    expect(lastMarketHistoryItems[1]["owner"]).to.equal(addr2.address)
+    expect(lastMarketHistoryItems[1]["price"]).to.equal(12)
+    expect(lastMarketHistoryItems[1]["sold"]).to.be.true
+    expect(lastMarketHistoryItems[1]["canceled"]).to.be.false
+
+
+  })
+
+
 });

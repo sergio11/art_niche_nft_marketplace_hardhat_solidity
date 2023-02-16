@@ -320,6 +320,19 @@ contract ArtMarketplaceContract is
         return _marketHistory;
     }
 
+    /**
+     * @dev Allow us to fetch last market history items
+     */
+    function fetchLastMarketHistoryItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {
+        ArtCollectibleForSale[] memory _lastMarketItems = new ArtCollectibleForSale[](count);
+        uint256 currentIndex = 0;
+        for (uint i = _marketHistory.length; i > 0 && currentIndex < count; i--) {
+            _lastMarketItems[currentIndex] = _marketHistory[i-1];
+            currentIndex += 1;
+        }
+        return _lastMarketItems;
+    }
+
 
     /**
      * @dev Fetches market items according to the its requested address property that

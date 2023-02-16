@@ -104,6 +104,11 @@ interface IArtMarketplaceContract {
      */
     function fetchMarketHistory() external view returns (ArtCollectibleForSale[] memory);
 
+    /**
+     * @dev Allow us to fetch last market history items
+     */
+    function fetchLastMarketHistoryItems(uint256 count) external view returns (ArtCollectibleForSale[] memory);
+
     // Data Structure
     struct ArtCollectibleForSale {
         uint256 marketItemId;
