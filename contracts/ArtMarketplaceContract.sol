@@ -83,7 +83,7 @@ contract ArtMarketplaceContract is
     {
 
         //send the token to the smart contract
-        IERC721(_artCollectibleAddress).transferFrom(msg.sender, address(this), tokenId);
+        IArtCollectibleContract(_artCollectibleAddress).transferTo(msg.sender, address(this), tokenId);
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
         _tokensForSale[marketItemId] = ArtCollectibleForSale(
@@ -126,7 +126,7 @@ contract ArtMarketplaceContract is
         ItemAlreadyAddedForSale(tokenId)
     {
         //send the token from the smart contract back to the one who listed it
-        IERC721(_artCollectibleAddress).transferFrom(address(this), msg.sender, tokenId);
+        IArtCollectibleContract(_artCollectibleAddress).transferTo(address(this), msg.sender, tokenId);
         _tokensCanceled.increment();
         uint256 marketId = _tokenForSaleMarketItemId[tokenId];
         _tokensForSale[marketId].owner = payable(msg.sender);
@@ -184,7 +184,7 @@ contract ArtMarketplaceContract is
             "An error ocurred when sending remainder to token seller"
         );
         //transfer the token from the smart contract back to the buyer
-        IERC721(_artCollectibleAddress).transferFrom(address(this), msg.sender, tokenId);
+        IArtCollectibleContract(_artCollectibleAddress).transferTo(address(this), msg.sender, tokenId);
         _tokensSold.increment();
         uint256 marketId = _tokenForSaleMarketItemId[tokenId];
         _tokensForSale[marketId].owner = payable(msg.sender);

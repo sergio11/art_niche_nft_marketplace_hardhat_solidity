@@ -46,6 +46,21 @@ interface IArtCollectibleContract {
      */
     function getTokenById(uint256 tokenId) external view returns (ArtCollectible memory);
 
+    /**
+     * @dev Allows you to transfer collectible
+     */
+    function transferTo(address from, address to, uint256 tokenId) external;
+
+    /**
+     * @dev Allows you to count tokens owned by address
+     */
+    function countTokensOwnedByAddress() external view returns (uint256);
+
+    /**
+     * @dev Allows you to count tokens creator by address
+     */
+    function countTokensCreatorByAddress() external view returns (uint256);
+
 
     // Data Structure
     struct ArtCollectible {

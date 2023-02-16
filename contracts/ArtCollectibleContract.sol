@@ -21,6 +21,8 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     // Mapping to keep track of the Item
     mapping(uint256 => ArtCollectible) private _tokenIdToItem;
     mapping(uint256 => address) private _tokenCreators;
+    mapping(address => uint256) private _addressTokensOwned;
+    mapping(address => uint256) private _addressTokensCreator;
 
     constructor() ERC721("ArtCollectibleContract", "ACT") {}
 
@@ -49,6 +51,8 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
+        _addressTokensCreator[msg.sender] += 1;
+        _addressTokensOwned[msg.sender] += 1;
         emit ArtCollectibleMinted(tokenId, msg.sender, metadataCid, royalty);
         return tokenId;
     }
@@ -97,6 +101,8 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
 
     function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
         _tokenIdToItem[tokenId].isExist = false;
+        _addressTokensCreator[msg.sender] -= 1;
+        _addressTokensOwned[_tokenCreators[tokenId]] -= 1;
         super._burn(tokenId);
     }
 
@@ -155,6 +161,20 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         }
 
         return createdTokens;
+    }
+
+    function transferTo(address from, address to, uint256 tokenId) external {
+        transferFrom(from, to, tokenId);
+        _addressTokensOwned[from] -= 1;
+        _addressTokensOwned[to] += 1;
+    }
+
+    function countTokensOwnedByAddress() external view returns (uint256) {
+        return _addressTokensOwned[msg.sender];
+    }
+
+    function countTokensCreatorByAddress() external view returns (uint256) {
+        return _addressTokensCreator[msg.sender];
     }
 
     // Modifiers
