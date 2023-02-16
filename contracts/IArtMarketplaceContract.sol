@@ -70,6 +70,21 @@ interface IArtMarketplaceContract {
     function countCanceledMarketItems() external view returns (uint256);
 
     /**
+     * @dev Count token sold by address
+     */
+    function countTokenSoldByAddress() external view returns (uint256);
+
+    /**
+     * @dev Count token bought by address
+     */
+    function countTokenBoughtByAddress() external view returns (uint256);
+    
+    /**
+     * @dev Count token Withdrawn by address
+     */
+    function countTokenWithdrawnByAddress() external view returns (uint256);
+
+    /**
      * @dev Fetch market items that are being listed by the msg.sender
      */
     function fetchSellingMarketItems() external view returns (ArtCollectibleForSale[] memory);

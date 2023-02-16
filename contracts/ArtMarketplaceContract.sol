@@ -32,6 +32,9 @@ contract ArtMarketplaceContract is
     mapping(uint256 => ArtCollectibleForSale) private _tokensForSale;
     ArtCollectibleForSale[] private _marketHistory;
     mapping(uint256 => uint256) private _tokenForSaleMarketItemId;
+    mapping(address => uint256) private _addressTokensSold;
+    mapping(address => uint256) private _addressTokensBought;
+    mapping(address => uint256) private _addressTokensWithdrawn;
 
 
     function getArtCollectibleAddress()
@@ -129,6 +132,7 @@ contract ArtMarketplaceContract is
         _tokensForSale[marketId].owner = payable(msg.sender);
         _tokensForSale[marketId].canceled = true;
         _marketHistory.push(_tokensForSale[marketId]);
+        _addressTokensWithdrawn[msg.sender] += 1;
         delete _hasBeenAddedForSale[tokenId];
         delete _tokensForSale[tokenId];
         delete _tokenForSaleMarketItemId[tokenId];
@@ -186,6 +190,8 @@ contract ArtMarketplaceContract is
         _tokensForSale[marketId].owner = payable(msg.sender);
         _tokensForSale[marketId].sold = true;
         _marketHistory.push(_tokensForSale[marketId]);
+        _addressTokensSold[_tokensForSale[marketId].seller] += 1;
+        _addressTokensBought[msg.sender] += 1;
         delete _hasBeenAddedForSale[tokenId];
         delete _tokensForSale[tokenId];
         delete _tokenForSaleMarketItemId[tokenId];
@@ -215,6 +221,27 @@ contract ArtMarketplaceContract is
      */
     function countCanceledMarketItems() external view returns (uint256) {
         return _tokensCanceled.current();
+    }
+
+    /**
+     * @dev Count token sold by address
+     */
+    function countTokenSoldByAddress() external view returns (uint256) {
+        return _addressTokensSold[msg.sender];
+    }
+
+    /**
+     * @dev Count token bought by address
+     */
+    function countTokenBoughtByAddress() external view returns (uint256) {
+        return _addressTokensBought[msg.sender];
+    }
+
+    /**
+     * @dev Count token Withdrawn by address
+     */
+    function countTokenWithdrawnByAddress() external view returns (uint256) {
+        return _addressTokensWithdrawn[msg.sender];
     }
 
     /**

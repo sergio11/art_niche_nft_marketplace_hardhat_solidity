@@ -608,4 +608,79 @@ describe("ArtMarketplaceContract", function () {
     expect(ownerOfToken).to.equal(addr1.address)
   });
 
+  it("count token sold by address", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let countTokenSoldAddr1 = await artMarketplace.connect(addr1).countTokenSoldByAddress()
+    let countTokenSoldAddr2 = await artMarketplace.connect(addr2).countTokenSoldByAddress()
+
+    expect(countTokenSoldAddr1).to.equal(1)
+    expect(countTokenSoldAddr2).to.equal(1)
+
+  })
+
+  it("count token bought by address", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let countTokenBoughtAddr1 = await artMarketplace.connect(addr1).countTokenBoughtByAddress()
+    let countTokenBoughtAddr2 = await artMarketplace.connect(addr2).countTokenBoughtByAddress()
+
+    expect(countTokenBoughtAddr1).to.equal(1)
+    expect(countTokenBoughtAddr2).to.equal(1)
+
+  })
+
+  it("count token withdrawn by address", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).withdrawFromSale(DEFAULT_TOKEN_ID)
+
+    let countTokenWithdrawnAddr1 = await artMarketplace.connect(addr1).countTokenWithdrawnByAddress()
+    let countTokenWithdrawnAddr2 = await artMarketplace.connect(addr2).countTokenWithdrawnByAddress()
+
+    expect(countTokenWithdrawnAddr1).to.equal(0)
+    expect(countTokenWithdrawnAddr2).to.equal(1)
+  })
+
 });
