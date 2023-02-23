@@ -199,6 +199,17 @@ contract ArtMarketplaceContract is
     }
 
     /**
+     * @dev Fetch Market statistics
+     */
+    function fetchMarketStatistics() external view returns (MarketStatistics memory) {
+        uint256 countAvailable = this.countAvailableMarketItems();
+        uint256 countSold = this.countSoldMarketItems();
+        uint256 countCanceled = this.countCanceledMarketItems();
+        MarketStatistics memory marketStatistics = MarketStatistics(countAvailable, countSold, countCanceled);
+        return marketStatistics;
+    }
+
+    /**
      * @dev Count non sold and non canceled market items
      */
     function countAvailableMarketItems() external view returns (uint256) {
@@ -226,22 +237,32 @@ contract ArtMarketplaceContract is
     /**
      * @dev Count token sold by address
      */
-    function countTokenSoldByAddress() external view returns (uint256) {
-        return _addressTokensSold[msg.sender];
+    function countTokenSoldByAddress(address ownerAddress) external view returns (uint256) {
+        return _addressTokensSold[ownerAddress];
     }
 
     /**
      * @dev Count token bought by address
      */
-    function countTokenBoughtByAddress() external view returns (uint256) {
-        return _addressTokensBought[msg.sender];
+    function countTokenBoughtByAddress(address ownerAddress) external view returns (uint256) {
+        return _addressTokensBought[ownerAddress];
     }
 
     /**
      * @dev Count token Withdrawn by address
      */
-    function countTokenWithdrawnByAddress() external view returns (uint256) {
-        return _addressTokensWithdrawn[msg.sender];
+    function countTokenWithdrawnByAddress(address ownerAddress) external view returns (uint256) {
+        return _addressTokensWithdrawn[ownerAddress];
+    }
+
+    /**
+     * @dev Fetch Wallet statistics
+     */
+    function fetchWalletStatistics(address ownerAddress) external view returns (WalletStatistics memory) {
+        uint256 countTokenSold = this.countTokenSoldByAddress(ownerAddress);
+        uint256 countTokenBought = this.countTokenBoughtByAddress(ownerAddress);
+        uint256 countTokenWithdrawn = this.countTokenWithdrawnByAddress(ownerAddress);
+        return WalletStatistics(countTokenSold, countTokenBought, countTokenWithdrawn);
     }
 
     /**

@@ -60,12 +60,12 @@ interface IArtCollectibleContract {
     /**
      * @dev Allows you to count tokens owned by address
      */
-    function countTokensOwnedByAddress() external view returns (uint256);
+    function countTokensOwnedByAddress(address ownerAddress) external view returns (uint256);
 
     /**
      * @dev Allows you to count tokens creator by address
      */
-    function countTokensCreatorByAddress() external view returns (uint256);
+    function countTokensCreatorByAddress(address creatorAddress) external view returns (uint256);
 
 
     // Data Structure

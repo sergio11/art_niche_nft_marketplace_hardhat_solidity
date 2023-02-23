@@ -293,8 +293,8 @@ describe("ArtCollectibleContract", function () {
     const { instance, addr1, addr2 } = await deployContractFixture()
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    let countTokensOwnedByAddr1 = await instance.connect(addr1).countTokensOwnedByAddress()
-    let countTokensOwnedByAddr2 = await instance.connect(addr2).countTokensOwnedByAddress()
+    let countTokensOwnedByAddr1 = await instance.connect(addr1).countTokensOwnedByAddress(addr1.address)
+    let countTokensOwnedByAddr2 = await instance.connect(addr2).countTokensOwnedByAddress(addr2.address)
 
     expect(countTokensOwnedByAddr1).to.equal(1)
     expect(countTokensOwnedByAddr2).to.equal(0)
@@ -304,8 +304,8 @@ describe("ArtCollectibleContract", function () {
     const { instance, addr1, addr2 } = await deployContractFixture()
 
     await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
-    let countTokensOwnedByAddr1 = await instance.connect(addr1).countTokensCreatorByAddress()
-    let countTokensOwnedByAddr2 = await instance.connect(addr2).countTokensCreatorByAddress()
+    let countTokensOwnedByAddr1 = await instance.connect(addr1).countTokensCreatorByAddress(addr1.address)
+    let countTokensOwnedByAddr2 = await instance.connect(addr2).countTokensCreatorByAddress(addr2.address)
 
     expect(countTokensOwnedByAddr1).to.equal(1)
     expect(countTokensOwnedByAddr2).to.equal(0)

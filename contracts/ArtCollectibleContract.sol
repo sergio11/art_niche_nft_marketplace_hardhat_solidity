@@ -182,12 +182,12 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         _addressTokensOwned[to] += 1;
     }
 
-    function countTokensOwnedByAddress() external view returns (uint256) {
-        return _addressTokensOwned[msg.sender];
+    function countTokensOwnedByAddress(address ownerAddress) external view returns (uint256) {
+        return _addressTokensOwned[ownerAddress];
     }
 
-    function countTokensCreatorByAddress() external view returns (uint256) {
-        return _addressTokensCreator[msg.sender];
+    function countTokensCreatorByAddress(address creatorAddress) external view returns (uint256) {
+        return _addressTokensCreator[creatorAddress];
     }
 
     // Modifiers

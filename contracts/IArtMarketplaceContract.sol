@@ -55,6 +55,11 @@ interface IArtMarketplaceContract {
     function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
     /**
+     * @dev Fetch Market statistics
+     */
+    function fetchMarketStatistics() external view returns (MarketStatistics memory);
+
+    /**
      * @dev Count non sold and non canceled market items
      */
     function countAvailableMarketItems() external view returns (uint256);
@@ -70,19 +75,24 @@ interface IArtMarketplaceContract {
     function countCanceledMarketItems() external view returns (uint256);
 
     /**
+     * @dev Fetch Wallet statistics
+     */
+    function fetchWalletStatistics(address ownerAddress) external view returns (WalletStatistics memory);
+
+    /**
      * @dev Count token sold by address
      */
-    function countTokenSoldByAddress() external view returns (uint256);
+    function countTokenSoldByAddress(address ownerAddress) external view returns (uint256);
 
     /**
      * @dev Count token bought by address
      */
-    function countTokenBoughtByAddress() external view returns (uint256);
+    function countTokenBoughtByAddress(address ownerAddress) external view returns (uint256);
     
     /**
      * @dev Count token Withdrawn by address
      */
-    function countTokenWithdrawnByAddress() external view returns (uint256);
+    function countTokenWithdrawnByAddress(address ownerAddress) external view returns (uint256);
 
     /**
      * @dev Fetch market items that are being listed by the msg.sender
@@ -119,6 +129,18 @@ interface IArtMarketplaceContract {
         uint256 price;
         bool sold;
         bool canceled;
+    }
+
+    struct MarketStatistics {
+        uint256 countAvailable;
+        uint256 countSold;
+        uint256 countCanceled;
+    }
+
+    struct WalletStatistics {
+        uint256 countTokenSold;
+        uint256 countTokenBought;
+        uint256 countTokenWithdrawn;
     }
 
     // Events Definitions

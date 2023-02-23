@@ -345,6 +345,21 @@ describe("ArtMarketplaceContract", function () {
     expect(availableItemsForAddr1[0]["canceled"]).to.be.false
   });
 
+  it("fetch available market items", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let marketStatistics = await artMarketplace.connect(addr1).fetchMarketStatistics()
+
+
+    expect(marketStatistics["countAvailable"]).to.be.equal(1)
+    expect(marketStatistics["countSold"]).to.be.equal(0)
+    expect(marketStatistics["countCanceled"]).to.be.equal(0)
+  })
+
   it("fetch available market items after withdraw market item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 
@@ -633,8 +648,8 @@ describe("ArtMarketplaceContract", function () {
       value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
     })
 
-    let countTokenSoldAddr1 = await artMarketplace.connect(addr1).countTokenSoldByAddress()
-    let countTokenSoldAddr2 = await artMarketplace.connect(addr2).countTokenSoldByAddress()
+    let countTokenSoldAddr1 = await artMarketplace.connect(addr1).countTokenSoldByAddress(addr1.address)
+    let countTokenSoldAddr2 = await artMarketplace.connect(addr2).countTokenSoldByAddress(addr2.address)
 
     expect(countTokenSoldAddr1).to.equal(1)
     expect(countTokenSoldAddr2).to.equal(1)
@@ -659,8 +674,8 @@ describe("ArtMarketplaceContract", function () {
       value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
     })
 
-    let countTokenBoughtAddr1 = await artMarketplace.connect(addr1).countTokenBoughtByAddress()
-    let countTokenBoughtAddr2 = await artMarketplace.connect(addr2).countTokenBoughtByAddress()
+    let countTokenBoughtAddr1 = await artMarketplace.connect(addr1).countTokenBoughtByAddress(addr1.address)
+    let countTokenBoughtAddr2 = await artMarketplace.connect(addr2).countTokenBoughtByAddress(addr2.address)
 
     expect(countTokenBoughtAddr1).to.equal(1)
     expect(countTokenBoughtAddr2).to.equal(1)
@@ -683,12 +698,42 @@ describe("ArtMarketplaceContract", function () {
     })
     await artMarketplace.connect(addr2).withdrawFromSale(DEFAULT_TOKEN_ID)
 
-    let countTokenWithdrawnAddr1 = await artMarketplace.connect(addr1).countTokenWithdrawnByAddress()
-    let countTokenWithdrawnAddr2 = await artMarketplace.connect(addr2).countTokenWithdrawnByAddress()
+    let countTokenWithdrawnAddr1 = await artMarketplace.connect(addr1).countTokenWithdrawnByAddress(addr1.address)
+    let countTokenWithdrawnAddr2 = await artMarketplace.connect(addr2).countTokenWithdrawnByAddress(addr2.address)
 
     expect(countTokenWithdrawnAddr1).to.equal(0)
     expect(countTokenWithdrawnAddr2).to.equal(1)
   })
+
+  it("fetch wallet statistics", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let wallet1Statistic = await artMarketplace.connect(addr1).fetchWalletStatistics(addr1.address)
+    let wallet2Statistic = await artMarketplace.connect(addr2).fetchWalletStatistics(addr2.address)
+
+    expect(wallet1Statistic.countTokenBought).to.equal(1)
+    expect(wallet2Statistic.countTokenBought).to.equal(1)
+    expect(wallet1Statistic.countTokenSold).to.equal(1)
+    expect(wallet2Statistic.countTokenSold).to.equal(1)
+    expect(wallet1Statistic.countTokenWithdrawn).to.equal(0)
+    expect(wallet2Statistic.countTokenWithdrawn).to.equal(0)
+  })
+
 
   it("fetch last market history items", async function () {  
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
