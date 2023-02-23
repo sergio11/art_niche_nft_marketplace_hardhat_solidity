@@ -41,6 +41,12 @@ interface IArtCollectibleContract {
     function getTokenCreatorById(uint256 tokenId) external view returns (address);
 
     /**
+     * @dev Allows you to retrieve an `ArtCollective` list from the identifier array `tokenIds`
+     *
+     */
+    function getTokens(uint256[] memory tokenIds) external view returns (ArtCollectible[] memory);
+
+    /**
      * @dev Allows you to retrieve an `ArtCollective` from the identifier `tokenId`
      *
      */

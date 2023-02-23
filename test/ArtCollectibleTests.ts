@@ -177,6 +177,42 @@ describe("ArtCollectibleContract", function () {
     expect(token.isExist).to.be.true
   });
 
+  it("get tokens", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenCid = DEFAULT_METADATA_CID
+    let secondTokenCid = "4323423"
+    let thirdTokenCid = "43145665"
+    let firstTokenId = 1
+    let secondTokenId = 2
+    let thirdTokenId = 3
+
+    await instance.connect(addr1).mintToken(firstTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenCid, DEFAULT_TOKEN_ROYALTY)
+    let tokens = await instance.connect(addr1).getTokens([firstTokenId, secondTokenId, thirdTokenId])
+
+    expect(tokens).not.be.empty
+    expect(tokens[0]["tokenId"]).to.equal(firstTokenId)
+    expect(tokens[0]["creator"]).to.equal(addr1.address)
+    expect(tokens[0]["owner"]).to.equal(addr1.address)
+    expect(tokens[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokens[0]["metadataCID"]).to.equal(firstTokenCid)
+    expect(tokens[0]["isExist"]).to.be.true
+    expect(tokens[1]["tokenId"]).to.equal(secondTokenId)
+    expect(tokens[1]["creator"]).to.equal(addr1.address)
+    expect(tokens[1]["owner"]).to.equal(addr1.address)
+    expect(tokens[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokens[1]["metadataCID"]).to.equal(secondTokenCid)
+    expect(tokens[1]["isExist"]).to.be.true
+    expect(tokens[2]["tokenId"]).to.equal(thirdTokenId)
+    expect(tokens[2]["creator"]).to.equal(addr1.address)
+    expect(tokens[2]["owner"]).to.equal(addr1.address)
+    expect(tokens[2]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokens[2]["metadataCID"]).to.equal(thirdTokenCid)
+    expect(tokens[2]["isExist"]).to.be.true
+  });
+
   it("transfer token", async function () {
     const { instance, addr1, addr2 } = await deployContractFixture()
 

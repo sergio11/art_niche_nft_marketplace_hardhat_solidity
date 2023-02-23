@@ -77,6 +77,18 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return _tokenCreators[tokenId];
     }
 
+    function getTokens(uint256[] memory tokenIds) external view returns (ArtCollectible[] memory) {
+        ArtCollectible[] memory tokens = new ArtCollectible[](tokenIds.length);
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < tokenIds.length; i++) { 
+            ArtCollectible memory token = _tokenIdToItem[tokenIds[i]];
+            if (!token.isExist) continue;
+            tokens[currentIndex] = token;
+            currentIndex += 1;
+        }
+        return tokens;
+    }
+
     function getTokenById(uint256 tokenId) external view TokenMustExist(tokenId) returns (ArtCollectible memory) {
         return _tokenIdToItem[tokenId];
     }
