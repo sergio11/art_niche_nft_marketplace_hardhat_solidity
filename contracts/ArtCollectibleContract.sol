@@ -47,7 +47,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         _setTokenURI(tokenId, metadataCid);
         // Give the marketplace approval to transact NFTs between users
         setApprovalForAll(_marketPlaceAddress, true);
-        ArtCollectible memory artCollectible = ArtCollectible(tokenId, msg.sender, royalty, metadataCid, true);
+        ArtCollectible memory artCollectible = ArtCollectible(tokenId, msg.sender, msg.sender, royalty, metadataCid, true);
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
@@ -165,6 +165,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
 
     function transferTo(address from, address to, uint256 tokenId) external {
         transferFrom(from, to, tokenId);
+        _tokenIdToItem[tokenId].owner = to;
         _addressTokensOwned[from] -= 1;
         _addressTokensOwned[to] += 1;
     }

@@ -101,10 +101,13 @@ describe("ArtCollectibleContract", function () {
     expect(tokensAddr1).not.be.empty
     expect(tokensAddr2).to.be.empty
     expect(tokenOwner).to.equal(addr1.address)
-    expect(tokensAddr1[0][0]).to.equal(DEFAULT_TOKEN_ID)
-    expect(tokensAddr1[0][1]).to.equal(addr1.address)
-    expect(tokensAddr1[0][2]).to.equal(DEFAULT_TOKEN_ROYALTY)
-    expect(tokensAddr1[0][3]).to.equal(DEFAULT_METADATA_CID)
+
+    expect(tokensAddr1[0]["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["isExist"]).to.be.true
   });
 
   it("get tokens owned by any account", async function () {
@@ -116,10 +119,12 @@ describe("ArtCollectibleContract", function () {
 
     expect(tokensAddr1).not.be.empty
     expect(tokenOwner).to.equal(addr1.address)
-    expect(tokensAddr1[0][0]).to.equal(DEFAULT_TOKEN_ID)
-    expect(tokensAddr1[0][1]).to.equal(addr1.address)
-    expect(tokensAddr1[0][2]).to.equal(DEFAULT_TOKEN_ROYALTY)
-    expect(tokensAddr1[0][3]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["isExist"]).to.be.true
   });
 
   it("get tokens created by me", async function () {
@@ -133,10 +138,12 @@ describe("ArtCollectibleContract", function () {
     expect(tokensAddr1).not.be.empty
     expect(tokensAddr2).to.be.empty
     expect(tokenOwner).to.equal(addr1.address)
-    expect(tokensAddr1[0][0]).to.equal(DEFAULT_TOKEN_ID)
-    expect(tokensAddr1[0][1]).to.equal(addr1.address)
-    expect(tokensAddr1[0][2]).to.equal(DEFAULT_TOKEN_ROYALTY)
-    expect(tokensAddr1[0][3]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["isExist"]).to.be.true
   });
 
   it("get tokens created by any account", async function () {
@@ -148,10 +155,12 @@ describe("ArtCollectibleContract", function () {
 
     expect(tokensAddr1).not.be.empty
     expect(tokenOwner).to.equal(addr1.address)
-    expect(tokensAddr1[0][0]).to.equal(DEFAULT_TOKEN_ID)
-    expect(tokensAddr1[0][1]).to.equal(addr1.address)
-    expect(tokensAddr1[0][2]).to.equal(DEFAULT_TOKEN_ROYALTY)
-    expect(tokensAddr1[0][3]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(DEFAULT_METADATA_CID)
+    expect(tokensAddr1[0]["isExist"]).to.be.true
   });
 
   it("get token by id", async function () {

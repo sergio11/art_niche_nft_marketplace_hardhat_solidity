@@ -66,6 +66,7 @@ interface IArtCollectibleContract {
     struct ArtCollectible {
         uint256 tokenId;
         address creator;
+        address owner;
         uint256 royalty;
         string metadataCID;
         bool isExist;
