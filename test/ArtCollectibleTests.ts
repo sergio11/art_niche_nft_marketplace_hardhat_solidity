@@ -310,5 +310,18 @@ describe("ArtCollectibleContract", function () {
     expect(countTokensOwnedByAddr1).to.equal(1)
     expect(countTokensOwnedByAddr2).to.equal(0)
   })
+  
 
+  it("fetch tokens statistics by address", async function () { 
+    const { instance, addr1, addr2 } = await deployContractFixture()
+
+    await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    let tokensStatisticsByAddr1 = await instance.connect(addr1).fetchTokensStatisticsByAddress(addr1.address)
+    let tokensStatisticsByAddr2 = await instance.connect(addr2).fetchTokensStatisticsByAddress(addr2.address)
+
+    expect(tokensStatisticsByAddr1.countTokensCreator).to.equal(1)
+    expect(tokensStatisticsByAddr1.countTokensOwned).to.equal(1)
+    expect(tokensStatisticsByAddr2.countTokensCreator).to.equal(0)
+    expect(tokensStatisticsByAddr2.countTokensOwned).to.equal(0)
+  })
 });

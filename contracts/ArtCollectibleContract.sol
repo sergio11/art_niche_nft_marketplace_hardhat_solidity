@@ -190,6 +190,15 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return _addressTokensCreator[creatorAddress];
     }
 
+    /**
+     * @dev Allows you to fetch tokens statistics by address
+     */
+    function fetchTokensStatisticsByAddress(address targetAddress) external view returns (TokenStatistics memory) {
+        uint256 countTokensOwned = this.countTokensOwnedByAddress(targetAddress);
+        uint256 countTokensCreator = this.countTokensCreatorByAddress(targetAddress);
+        return TokenStatistics(countTokensCreator, countTokensOwned);
+    }
+
     // Modifiers
 
     modifier ItemNotMintedYet(string memory metadataCid) {

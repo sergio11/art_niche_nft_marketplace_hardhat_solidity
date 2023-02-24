@@ -67,6 +67,11 @@ interface IArtCollectibleContract {
      */
     function countTokensCreatorByAddress(address creatorAddress) external view returns (uint256);
 
+    /**
+     * @dev Allows you to fetch tokens statistics by address
+     */
+    function fetchTokensStatisticsByAddress(address ownerAddress) external view returns (TokenStatistics memory);
+
 
     // Data Structure
     struct ArtCollectible {
@@ -76,6 +81,11 @@ interface IArtCollectibleContract {
         uint256 royalty;
         string metadataCID;
         bool isExist;
+    }
+
+    struct TokenStatistics {
+        uint256 countTokensCreator;
+        uint256 countTokensOwned;
     }
 
     // Events Definitions
