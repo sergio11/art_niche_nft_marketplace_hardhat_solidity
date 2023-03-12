@@ -22,6 +22,12 @@ interface IArtMarketplaceContract {
     function isTokenAddedForSale(uint256 tokenId) external view returns (bool);
 
     /**
+    * @dev is token metadata CID added for sale
+    */
+    function isTokenMetadataCIDAddedForSale(string memory metadataCID) external view returns (bool);
+
+
+    /**
      * @dev Cancel a listing of an item with a `tokenId`
      *
      * Requirements:

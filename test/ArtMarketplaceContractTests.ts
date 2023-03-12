@@ -71,11 +71,13 @@ describe("ArtMarketplaceContract", function () {
     const addr1BalanceAfterPutForSale = await artCollectibleContractInstance.balanceOf(addr1.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
     let isItemAddedForSale = await artMarketplace.isTokenAddedForSale(DEFAULT_TOKEN_ID)
+    let isTokenMetadataCIDAddedForSale = await artMarketplace.isTokenMetadataCIDAddedForSale(DEFAULT_METADATA_CID)
 
     expect(addr1BalanceBeforePutForSale).to.be.equal(1)
     expect(addr1BalanceAfterPutForSale).to.be.equal(0)
     expect(markerBalance).to.be.equal(1)
     expect(isItemAddedForSale).to.be.true
+    expect(isTokenMetadataCIDAddedForSale).to.be.true
     expect(events).to.be.an('array').that.is.not.empty
     expect(events!![1]).to.equal("ArtCollectibleAddedForSale")
   });
@@ -93,6 +95,7 @@ describe("ArtMarketplaceContract", function () {
     const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
     const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
     let isItemAddedForSale = await artMarketplace.isTokenAddedForSale(DEFAULT_TOKEN_ID)
+    let isTokenMetadataCIDAddedForSale = await artMarketplace.isTokenMetadataCIDAddedForSale(DEFAULT_METADATA_CID)
     let countCanceledMarketItems = await artMarketplace.connect(addr1).countCanceledMarketItems();
     
 
@@ -101,6 +104,7 @@ describe("ArtMarketplaceContract", function () {
     expect(countCanceledMarketItems).to.equal(1)
     expect(events).to.be.an('array').that.is.not.empty
     expect(isItemAddedForSale).to.be.false
+    expect(isTokenMetadataCIDAddedForSale).to.be.false
     expect(events!![1]).to.equal("ArtCollectibleWithdrawnFromSale")
   });
 

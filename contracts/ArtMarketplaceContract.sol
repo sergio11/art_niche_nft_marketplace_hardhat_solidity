@@ -29,6 +29,7 @@ contract ArtMarketplaceContract is
     uint256 public costOfPuttingForSale = DEFAULT_COST_OF_PUTTING_FOR_SALE;
     // Mapping to prevent the same item being listed twice
     mapping(uint256 => bool) private _hasBeenAddedForSale;
+    mapping(string => bool) private _tokenMetadataCidHasBeenAddedForSale;
     mapping(uint256 => ArtCollectibleForSale) private _tokensForSale;
     ArtCollectibleForSale[] private _marketHistory;
     mapping(uint256 => uint256) private _tokenForSaleMarketItemId;
@@ -100,6 +101,7 @@ contract ArtMarketplaceContract is
         _tokenForSaleMarketItemId[tokenId] = marketItemId;
         _tokenMetadataCidToMarketItemId[artCollectible.metadataCID] = marketItemId;
         _hasBeenAddedForSale[tokenId] = true;
+        _tokenMetadataCidHasBeenAddedForSale[artCollectible.metadataCID] = true;
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
     }
@@ -109,6 +111,13 @@ contract ArtMarketplaceContract is
     */
     function isTokenAddedForSale(uint256 tokenId) external view returns (bool) {
         return _hasBeenAddedForSale[tokenId];
+    }
+
+    /**
+    * @dev is token metadata CID added for sale
+    */
+    function isTokenMetadataCIDAddedForSale(string memory metadataCID) external view returns (bool) {
+        return _tokenMetadataCidHasBeenAddedForSale[metadataCID];
     }
 
     /**
@@ -135,6 +144,7 @@ contract ArtMarketplaceContract is
         string memory metadataCID = _tokensForSale[marketId].metadataCID;
         delete _tokenMetadataCidToMarketItemId[metadataCID];
         delete _hasBeenAddedForSale[tokenId];
+        delete _tokenMetadataCidHasBeenAddedForSale[metadataCID];
         delete _tokensForSale[tokenId];
         delete _tokenForSaleMarketItemId[tokenId];
         emit ArtCollectibleWithdrawnFromSale(tokenId);
@@ -204,6 +214,7 @@ contract ArtMarketplaceContract is
         string memory metadataCID = _tokensForSale[marketId].metadataCID;
         delete _tokenMetadataCidToMarketItemId[metadataCID];
         delete _hasBeenAddedForSale[tokenId];
+        delete _tokenMetadataCidHasBeenAddedForSale[metadataCID];
         delete _tokensForSale[tokenId];
         delete _tokenForSaleMarketItemId[tokenId];
         emit ArtCollectibleSold(tokenId, msg.sender, msg.value);
