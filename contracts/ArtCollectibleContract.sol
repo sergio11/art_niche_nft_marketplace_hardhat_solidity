@@ -20,6 +20,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     mapping(string => bool) private _hasBeenMinted;
     // Mapping to keep track of the Item
     mapping(uint256 => ArtCollectible) private _tokenIdToItem;
+    mapping(string => uint256) private _tokenMetadataCidToTokenId;
     mapping(uint256 => address) private _tokenCreators;
     mapping(address => uint256) private _addressTokensOwned;
     mapping(address => uint256) private _addressTokensCreator;
@@ -51,6 +52,7 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         _tokenIdToItem[tokenId] = artCollectible;
         _hasBeenMinted[metadataCid] = true;
         _tokenCreators[tokenId] = msg.sender;
+        _tokenMetadataCidToTokenId[metadataCid] = tokenId;
         _addressTokensCreator[msg.sender] += 1;
         _addressTokensOwned[msg.sender] += 1;
         emit ArtCollectibleMinted(tokenId, msg.sender, metadataCid, royalty);
@@ -87,6 +89,10 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
             currentIndex += 1;
         }
         return tokens;
+    }
+
+    function getTokenByMetadataCid(string memory metadataCid) external view ItemMinted(metadataCid) returns (ArtCollectible memory) {
+        return _tokenIdToItem[_tokenMetadataCidToTokenId[metadataCid]];
     }
 
     function getTokenById(uint256 tokenId) external view TokenMustExist(tokenId) returns (ArtCollectible memory) {
@@ -205,6 +211,12 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         require(!_hasBeenMinted[metadataCid],"This metadata has already been used to mint an NFT.");
         _;
     }
+
+    modifier ItemMinted(string memory metadataCid) {
+        require(_hasBeenMinted[metadataCid],"This metadata has not been used to mint an NFT.");
+        _;
+    }
+
 
     modifier TokenMustExist(uint256 tokenId) {
         require(_tokenIdToItem[tokenId].isExist, "There aren't any token with the token id specified");

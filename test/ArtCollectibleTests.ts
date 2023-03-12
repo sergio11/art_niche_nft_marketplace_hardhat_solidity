@@ -177,6 +177,20 @@ describe("ArtCollectibleContract", function () {
     expect(token.isExist).to.be.true
   });
 
+  it("get token by metadata CID", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    await instance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    let token = await instance.connect(addr1).getTokenByMetadataCid(DEFAULT_METADATA_CID)
+    let tokenOwner = await instance.connect(addr1).ownerOf(DEFAULT_TOKEN_ID)
+
+    expect(token).not.be.null
+    expect(tokenOwner).to.equal(addr1.address)
+    expect(token.royalty).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(token.creator).to.equal(addr1.address)
+    expect(token.isExist).to.be.true
+  });
+
   it("get tokens", async function () {
     const { instance, addr1 } = await deployContractFixture()
 
