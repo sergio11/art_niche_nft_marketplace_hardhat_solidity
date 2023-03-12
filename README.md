@@ -94,9 +94,9 @@ npx hardhat run --network <network-name> scripts/deploy.ts
 The project has been deployed on the Mumbai testnet, the addresses of the contracts are as follows:
 
 ```
-Faucet contract deployed to 0x84346b263883A025BA3f10F51fb3084fA49d7382
-ArtMarketplace contract deployed to 0x6dEdc939d253414a375d5AEf90F0679A08163018
-ArtCollectible contract deployed to 0x581eE4AeAb167632eEE4455edb07712a135FBC64
+Faucet contract deployed to 0x0b1379fF6A3049713D5a17c3116CD57d444b8a9a
+ArtMarketplace contract deployed to 0xe75457AeFa4D367DFc5495112a60178A8e2A0243
+ArtCollectible contract deployed to 0x8A53E585c5c19b78b03d215a978BAa74f81EE08B
 ```
 You can use the Remix IDE to interact with the contracts at those addresses:
 
