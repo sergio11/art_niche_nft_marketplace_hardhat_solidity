@@ -412,6 +412,26 @@ describe("ArtMarketplaceContract", function () {
     expect(itemForSaleDetail["canceled"]).to.be.false
   });
 
+  it("fetch item for sale detail by metadata CID", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let itemForSaleDetail = await artMarketplace.connect(addr1).fetchItemForSaleByMetadataCID(DEFAULT_METADATA_CID)
+
+    expect(itemForSaleDetail["marketItemId"]).to.be.equal(1)
+    expect(itemForSaleDetail["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(itemForSaleDetail["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
+    expect(itemForSaleDetail["creator"]).to.be.equal(addr1.address)
+    expect(itemForSaleDetail["seller"]).to.be.equal(addr1.address)
+    expect(itemForSaleDetail["owner"]).to.be.equal(artMarketplace.address)
+    expect(itemForSaleDetail["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(itemForSaleDetail["sold"]).to.be.false
+    expect(itemForSaleDetail["canceled"]).to.be.false
+  });
+
   it("fetch item for sale detail after withdraw market item", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 

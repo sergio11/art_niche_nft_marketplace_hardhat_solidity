@@ -32,6 +32,7 @@ contract ArtMarketplaceContract is
     mapping(uint256 => ArtCollectibleForSale) private _tokensForSale;
     ArtCollectibleForSale[] private _marketHistory;
     mapping(uint256 => uint256) private _tokenForSaleMarketItemId;
+    mapping(string => uint256) private _tokenMetadataCidToMarketItemId;
     mapping(address => uint256) private _addressTokensSold;
     mapping(address => uint256) private _addressTokensBought;
     mapping(address => uint256) private _addressTokensWithdrawn;
@@ -87,7 +88,7 @@ contract ArtMarketplaceContract is
         uint256 marketItemId = _marketItemIds.current();
         _tokensForSale[marketItemId] = ArtCollectibleForSale(
             marketItemId,
-            artCollectible.tokenId,
+            tokenId,
             artCollectible.metadataCID,
             payable(artCollectible.creator),
             payable(msg.sender),
@@ -97,6 +98,7 @@ contract ArtMarketplaceContract is
             false
         );
         _tokenForSaleMarketItemId[tokenId] = marketItemId;
+        _tokenMetadataCidToMarketItemId[artCollectible.metadataCID] = marketItemId;
         _hasBeenAddedForSale[tokenId] = true;
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
@@ -130,6 +132,8 @@ contract ArtMarketplaceContract is
         _tokensForSale[marketId].canceled = true;
         _marketHistory.push(_tokensForSale[marketId]);
         _addressTokensWithdrawn[msg.sender] += 1;
+        string memory metadataCID = _tokensForSale[marketId].metadataCID;
+        delete _tokenMetadataCidToMarketItemId[metadataCID];
         delete _hasBeenAddedForSale[tokenId];
         delete _tokensForSale[tokenId];
         delete _tokenForSaleMarketItemId[tokenId];
@@ -141,6 +145,14 @@ contract ArtMarketplaceContract is
      */
     function fetchItemForSale(uint256 tokenId) external ItemAlreadyAddedForSale(tokenId) view returns (ArtCollectibleForSale memory) {
         uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+        return _tokensForSale[marketId];
+    }
+
+    /**
+     * @dev Fetch item for sale by metadata CID
+     */
+    function fetchItemForSaleByMetadataCID(string memory metadataCID) external view returns (ArtCollectibleForSale memory) {
+        uint256 marketId = _tokenMetadataCidToMarketItemId[metadataCID];
         return _tokensForSale[marketId];
     }
 
@@ -189,6 +201,8 @@ contract ArtMarketplaceContract is
         _marketHistory.push(_tokensForSale[marketId]);
         _addressTokensSold[_tokensForSale[marketId].seller] += 1;
         _addressTokensBought[msg.sender] += 1;
+        string memory metadataCID = _tokensForSale[marketId].metadataCID;
+        delete _tokenMetadataCidToMarketItemId[metadataCID];
         delete _hasBeenAddedForSale[tokenId];
         delete _tokensForSale[tokenId];
         delete _tokenForSaleMarketItemId[tokenId];
