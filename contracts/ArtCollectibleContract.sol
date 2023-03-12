@@ -181,11 +181,12 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return createdTokens;
     }
 
-    function transferTo(address from, address to, uint256 tokenId) external {
+    function transferTo(address from, address to, uint256 tokenId) external returns (ArtCollectible memory){
         transferFrom(from, to, tokenId);
         _tokenIdToItem[tokenId].owner = to;
         _addressTokensOwned[from] -= 1;
         _addressTokensOwned[to] += 1;
+        return _tokenIdToItem[tokenId];
     }
 
     function countTokensOwnedByAddress(address ownerAddress) external view returns (uint256) {

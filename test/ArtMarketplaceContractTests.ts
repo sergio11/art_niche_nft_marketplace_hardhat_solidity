@@ -337,6 +337,7 @@ describe("ArtMarketplaceContract", function () {
     expect(availableItemsForAddr2).to.have.length(1)
     expect(availableItemsForAddr1[0]["marketItemId"]).to.be.equal(1)
     expect(availableItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(availableItemsForAddr1[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(availableItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
     expect(availableItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
     expect(availableItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -382,6 +383,7 @@ describe("ArtMarketplaceContract", function () {
     expect(availableItemsForAddr2).to.have.length(1)
     expect(availableItemsForAddr1[0]["marketItemId"]).to.be.equal(2)
     expect(availableItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(availableItemsForAddr1[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(availableItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
     expect(availableItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
     expect(availableItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -401,6 +403,7 @@ describe("ArtMarketplaceContract", function () {
 
     expect(itemForSaleDetail["marketItemId"]).to.be.equal(1)
     expect(itemForSaleDetail["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(itemForSaleDetail["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(itemForSaleDetail["creator"]).to.be.equal(addr1.address)
     expect(itemForSaleDetail["seller"]).to.be.equal(addr1.address)
     expect(itemForSaleDetail["owner"]).to.be.equal(artMarketplace.address)
@@ -424,6 +427,7 @@ describe("ArtMarketplaceContract", function () {
 
     expect(itemForSaleDetail["marketItemId"]).to.be.equal(2)
     expect(itemForSaleDetail["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(itemForSaleDetail["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(itemForSaleDetail["creator"]).to.be.equal(addr1.address)
     expect(itemForSaleDetail["seller"]).to.be.equal(addr1.address)
     expect(itemForSaleDetail["owner"]).to.be.equal(artMarketplace.address)
@@ -447,6 +451,7 @@ describe("ArtMarketplaceContract", function () {
     expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
     expect(sellingItemsForAddr1[0]["marketItemId"]).to.be.equal(1)
     expect(sellingItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(sellingItemsForAddr1[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(sellingItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -474,6 +479,7 @@ describe("ArtMarketplaceContract", function () {
     expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
     expect(sellingItemsForAddr1[0]["marketItemId"]).to.be.equal(2)
     expect(sellingItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(sellingItemsForAddr1[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(sellingItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -502,6 +508,7 @@ describe("ArtMarketplaceContract", function () {
     expect(sellingItemsForAddr2).to.be.an('array').that.is.empty
     expect(sellingItemsForAddr1[0]["marketItemId"]).to.be.equal(1)
     expect(sellingItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(sellingItemsForAddr1[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(sellingItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -509,6 +516,7 @@ describe("ArtMarketplaceContract", function () {
     expect(sellingItemsForAddr1[0]["sold"]).to.be.false
     expect(sellingItemsForAddr1[0]["canceled"]).to.be.false
     expect(sellingItemsForAddr1[1]["marketItemId"]).to.be.equal(2)
+    expect(sellingItemsForAddr1[1]["metadataCID"]).to.be.equal(newMetadataCid)
     expect(sellingItemsForAddr1[1]["tokenId"]).to.be.equal(2)
     expect(sellingItemsForAddr1[1]["creator"]).to.be.equal(addr1.address)
     expect(sellingItemsForAddr1[1]["seller"]).to.be.equal(addr1.address)
@@ -536,6 +544,7 @@ describe("ArtMarketplaceContract", function () {
     expect(ownedMarketItemsForMarketplaceAddr).to.have.length(1)
     expect(ownedMarketItemsForMarketplaceAddr[0]["marketItemId"]).to.be.equal(1)
     expect(ownedMarketItemsForMarketplaceAddr[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(ownedMarketItemsForMarketplaceAddr[0]["creator"]).to.be.equal(addr1.address)
     expect(ownedMarketItemsForMarketplaceAddr[0]["seller"]).to.be.equal(addr1.address)
     expect(ownedMarketItemsForMarketplaceAddr[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -566,6 +575,7 @@ describe("ArtMarketplaceContract", function () {
     expect(ownedMarketItemsForMarketplaceAddr).to.have.length(1)
     expect(ownedMarketItemsForMarketplaceAddr[0]["marketItemId"]).to.be.equal(2)
     expect(ownedMarketItemsForMarketplaceAddr[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(ownedMarketItemsForMarketplaceAddr[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(ownedMarketItemsForMarketplaceAddr[0]["creator"]).to.be.equal(addr1.address)
     expect(ownedMarketItemsForMarketplaceAddr[0]["seller"]).to.be.equal(addr1.address)
     expect(ownedMarketItemsForMarketplaceAddr[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -589,6 +599,7 @@ describe("ArtMarketplaceContract", function () {
     expect(createdMarketItemsForAddr2).to.be.an('array').that.is.empty
     expect(createdMarketItemsForAddr1[0]["marketItemId"]).to.be.equal(1)
     expect(createdMarketItemsForAddr1[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(createdMarketItemsForAddr1[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(createdMarketItemsForAddr1[0]["creator"]).to.be.equal(addr1.address)
     expect(createdMarketItemsForAddr1[0]["seller"]).to.be.equal(addr1.address)
     expect(createdMarketItemsForAddr1[0]["owner"]).to.be.equal(artMarketplace.address)
@@ -759,6 +770,7 @@ describe("ArtMarketplaceContract", function () {
     expect(lastMarketHistoryItems).to.have.length(2)
     expect(lastMarketHistoryItems[0]["marketItemId"]).to.equal(2)
     expect(lastMarketHistoryItems[0]["tokenId"]).to.equal(1)
+    expect(lastMarketHistoryItems[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(lastMarketHistoryItems[0]["creator"]).to.equal(addr1.address)
     expect(lastMarketHistoryItems[0]["seller"]).to.equal(addr2.address)
     expect(lastMarketHistoryItems[0]["owner"]).to.equal(addr1.address)
@@ -766,6 +778,7 @@ describe("ArtMarketplaceContract", function () {
     expect(lastMarketHistoryItems[0]["sold"]).to.be.true
     expect(lastMarketHistoryItems[0]["canceled"]).to.be.false
     expect(lastMarketHistoryItems[1]["marketItemId"]).to.equal(1)
+    expect(lastMarketHistoryItems[1]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
     expect(lastMarketHistoryItems[1]["tokenId"]).to.equal(1)
     expect(lastMarketHistoryItems[1]["creator"]).to.equal(addr1.address)
     expect(lastMarketHistoryItems[1]["seller"]).to.equal(addr1.address)
@@ -773,8 +786,6 @@ describe("ArtMarketplaceContract", function () {
     expect(lastMarketHistoryItems[1]["price"]).to.equal(12)
     expect(lastMarketHistoryItems[1]["sold"]).to.be.true
     expect(lastMarketHistoryItems[1]["canceled"]).to.be.false
-
-
   })
 
 

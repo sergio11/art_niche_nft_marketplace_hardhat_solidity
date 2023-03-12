@@ -61,7 +61,7 @@ interface IArtCollectibleContract {
     /**
      * @dev Allows you to transfer collectible
      */
-    function transferTo(address from, address to, uint256 tokenId) external;
+    function transferTo(address from, address to, uint256 tokenId) external returns (ArtCollectible memory);
 
     /**
      * @dev Allows you to count tokens owned by address

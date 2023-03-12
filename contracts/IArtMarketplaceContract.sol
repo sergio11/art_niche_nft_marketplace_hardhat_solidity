@@ -123,6 +123,7 @@ interface IArtMarketplaceContract {
     struct ArtCollectibleForSale {
         uint256 marketItemId;
         uint256 tokenId;
+        string metadataCID;
         address payable creator;
         address payable seller;
         address payable owner;

@@ -81,18 +81,15 @@ contract ArtMarketplaceContract is
         PriceMustBeEqualToListingPrice(msg.value)
         returns (uint256)
     {
-
         //send the token to the smart contract
-        IArtCollectibleContract(_artCollectibleAddress).transferTo(msg.sender, address(this), tokenId);
+        IArtCollectibleContract.ArtCollectible memory artCollectible = IArtCollectibleContract(_artCollectibleAddress).transferTo(msg.sender, address(this), tokenId);
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
         _tokensForSale[marketItemId] = ArtCollectibleForSale(
             marketItemId,
-            tokenId,
-            payable(
-                IArtCollectibleContract(_artCollectibleAddress)
-                    .getTokenCreatorById(tokenId)
-            ),
+            artCollectible.tokenId,
+            artCollectible.metadataCID,
+            payable(artCollectible.creator),
             payable(msg.sender),
             payable(address(this)),
             price,
