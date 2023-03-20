@@ -365,6 +365,28 @@ contract ArtMarketplaceContract is
     }
 
     /**
+     * @dev Allow us to fetch market history of the token
+     */
+    function fetchTokenMarketHistory(uint256 tokenId) external view returns (ArtCollectibleForSale[] memory) {
+        uint256 totalMarketItems = _marketHistory.length;
+        uint256 totalTokenMarketItems = 0;
+        for (uint i = 0; i < totalMarketItems; i++) {
+            if (_marketHistory[i].tokenId != tokenId) continue;
+            totalTokenMarketItems += 1;
+        }
+    
+        ArtCollectibleForSale[] memory _marketItems = new ArtCollectibleForSale[](totalTokenMarketItems);
+        uint256 currentIndex = 0;
+        for (uint i = totalMarketItems; i > 0; i--) {
+            uint256 itemIndex = i - 1;
+            if (_marketHistory[itemIndex].tokenId != tokenId) continue;
+            _marketItems[currentIndex] = _marketHistory[itemIndex];
+            currentIndex += 1;
+        }
+        return _marketItems;
+    }
+
+    /**
      * @dev Allow us to fetch last market history items
      */
     function fetchLastMarketHistoryItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {

@@ -121,6 +121,11 @@ interface IArtMarketplaceContract {
     function fetchCreatedMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
     /**
+     * @dev Allow us to fetch market history of the token
+     */
+    function fetchTokenMarketHistory(uint256 tokenId) external view returns (ArtCollectibleForSale[] memory);
+
+    /**
      * @dev Allow us to fetch market history
      */
     function fetchMarketHistory() external view returns (ArtCollectibleForSale[] memory);

@@ -665,6 +665,67 @@ describe("ArtMarketplaceContract", function () {
     expect(ownerOfToken).to.equal(addr1.address)
   });
 
+
+  it("fetch market history of the token", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+  
+    let token1MetadataCID = "123456a"
+    let token1ID = 1
+    let token2MetadataCID = "123456b"
+    let token2ID = 2
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(token1MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(token1ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(token1ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, token1ID);
+    await artMarketplace.connect(addr2).putItemForSale(token1ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(token1ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(token2MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(token2ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(token2ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, token2ID);
+    await artMarketplace.connect(addr2).putItemForSale(token2ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(token2ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+
+    let token1MarketHistory = await artMarketplace.fetchTokenMarketHistory(token1ID)
+    let token2MarketHistory = await artMarketplace.fetchTokenMarketHistory(token2ID)
+
+    const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
+    const addr2Balance = await artCollectibleContractInstance.balanceOf(addr2.address)
+    const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    const ownerOfToken1 = await artCollectibleContractInstance.ownerOf(token1ID)
+    const ownerOfToken2 = await artCollectibleContractInstance.ownerOf(token2ID)
+
+    expect(token1MarketHistory).to.be.an('array').that.is.not.empty
+    expect(token1MarketHistory).to.have.length(2)
+    expect(token2MarketHistory).to.be.an('array').that.is.not.empty
+    expect(token2MarketHistory).to.have.length(2)
+    expect(markerBalance).to.equal(0)
+    expect(addr1Balance).to.equal(2)
+    expect(addr2Balance).to.equal(0)
+    expect(ownerOfToken1).to.equal(addr1.address)
+    expect(ownerOfToken2).to.equal(addr1.address)
+  });
+
+
   it("count token sold by address", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 
