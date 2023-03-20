@@ -60,19 +60,35 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     }
 
     function getTokensCreatedBy(address creatorAddress) external view returns (ArtCollectible[] memory) {
-        return _getTokensCreatedBy(creatorAddress);
+        return _getTokensCreatedBy(creatorAddress, 0);
+    }
+
+    function getPaginatedTokensCreatedBy(address creatorAddress, uint256 count) external view returns (ArtCollectible[] memory) {
+        return _getTokensCreatedBy(creatorAddress, count);
+    }
+
+    function getPaginatedTokensCreatedByMe(uint256 count) external view returns (ArtCollectible[] memory) {
+        return _getTokensCreatedBy(msg.sender, count);
     }
 
     function getTokensCreatedByMe() external view returns (ArtCollectible[] memory) {
-        return _getTokensCreatedBy(msg.sender);
+        return _getTokensCreatedBy(msg.sender, 0);
+    }
+
+    function getPaginatedTokensOwnedBy(address ownedAddress, uint256 count) external view returns (ArtCollectible[] memory) {
+        return _getTokensOwnedBy(ownedAddress, count);
     }
 
     function getTokensOwnedBy(address ownedAddress) external view returns (ArtCollectible[] memory) {
-        return _getTokensOwnedBy(ownedAddress);
+        return _getTokensOwnedBy(ownedAddress, 0);
+    }
+
+    function getPaginatedTokensOwnedByMe(uint256 count) external view returns (ArtCollectible[] memory) { 
+        return _getTokensOwnedBy(msg.sender, count);
     }
 
     function getTokensOwnedByMe() external view returns (ArtCollectible[] memory) { 
-        return _getTokensOwnedBy(msg.sender);
+        return _getTokensOwnedBy(msg.sender, 0);
     }
 
     function getTokenCreatorById(uint256 tokenId) public view TokenMustExist(tokenId) returns (address) {
@@ -142,13 +158,20 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return super.supportsInterface(interfaceId);
     }
 
-    function _getTokensOwnedBy(address ownerAddress) private view returns (ArtCollectible[] memory) { 
+    function _getTokensOwnedBy(address ownerAddress, uint256 count) private view returns (ArtCollectible[] memory) { 
         uint256 numberOfExistingTokens = _tokenIdCounter.current();
         uint256 numberOfTokensOwned = balanceOf(ownerAddress);
-        ArtCollectible[] memory ownedTokens = new ArtCollectible[](numberOfTokensOwned);
-
+        uint256 countTokens;
+        if(count > numberOfTokensOwned) {
+            countTokens = numberOfTokensOwned;
+        } else if(count > 0) { 
+            countTokens = count;
+        } else {
+           countTokens = numberOfTokensOwned;
+        }
+        ArtCollectible[] memory ownedTokens = new ArtCollectible[](countTokens);
         uint256 currentIndex = 0;
-        for (uint256 i = 0; i < numberOfExistingTokens; i++) {
+        for (uint256 i = 0; i < numberOfExistingTokens && currentIndex < countTokens; i++) {
             uint256 tokenId = i + 1;
             ArtCollectible memory token = _tokenIdToItem[tokenId];
             if (!token.isExist || ownerOf(tokenId) != ownerAddress) continue;
@@ -159,19 +182,25 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return ownedTokens;
     }
 
-    function _getTokensCreatedBy(address creatorAddress) private view returns (ArtCollectible[] memory) {
+    function _getTokensCreatedBy(address creatorAddress, uint256 count) private view returns (ArtCollectible[] memory) {
         uint256 numberOfExistingTokens = _tokenIdCounter.current();
         uint256 numberOfTokensCreated = 0;
-
         for (uint256 i = 0; i < numberOfExistingTokens; i++) {
             uint256 tokenId = i + 1;
             if (_tokenCreators[tokenId] != creatorAddress) continue;
             numberOfTokensCreated += 1;
         }
-
-        ArtCollectible[] memory createdTokens = new ArtCollectible[](numberOfTokensCreated);
+        uint256 countTokens;
+        if(count > numberOfTokensCreated) {
+            countTokens = numberOfTokensCreated;
+        } else if(count > 0) { 
+            countTokens = count;
+        } else {
+           countTokens = numberOfTokensCreated;
+        }
+        ArtCollectible[] memory createdTokens = new ArtCollectible[](countTokens);
         uint256 currentIndex = 0;
-        for (uint256 i = 0; i < numberOfExistingTokens; i++) {
+        for (uint256 i = 0; i < numberOfExistingTokens && currentIndex < countTokens; i++) {
             uint256 tokenId = i + 1;
             if (_tokenCreators[tokenId] != creatorAddress) continue;
             createdTokens[currentIndex] = _tokenIdToItem[tokenId];
@@ -181,12 +210,11 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
         return createdTokens;
     }
 
-    function transferTo(address from, address to, uint256 tokenId) external returns (ArtCollectible memory){
+    function transferTo(address from, address to, uint256 tokenId) external{
         transferFrom(from, to, tokenId);
         _tokenIdToItem[tokenId].owner = to;
         _addressTokensOwned[from] -= 1;
         _addressTokensOwned[to] += 1;
-        return _tokenIdToItem[tokenId];
     }
 
     function countTokensOwnedByAddress(address ownerAddress) external view returns (uint256) {

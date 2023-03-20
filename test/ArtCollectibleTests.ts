@@ -110,6 +110,86 @@ describe("ArtCollectibleContract", function () {
     expect(tokensAddr1[0]["isExist"]).to.be.true
   });
 
+  it("get paginated tokens owned by me", async function () {
+    const { instance, addr1, addr2 } = await deployContractFixture()
+    let token1MetadataCID = "123456a"
+    let token2MetadataCID = "123456b"
+    let token3MetadataCID = "123456c"
+    let token4MetadataCID = "123456d"
+    let token5MetadataCID = "123456e"
+    let token6MetadataCID = "123456f"
+    let countTokens = 3
+
+    await instance.connect(addr1).mintToken(token1MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token2MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token3MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token4MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token5MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token6MetadataCID, DEFAULT_TOKEN_ROYALTY)
+
+    let tokensAddr1 = await instance.connect(addr1).getPaginatedTokensOwnedByMe(countTokens)
+    let tokensAddr2 = await instance.connect(addr2).getPaginatedTokensOwnedByMe(countTokens)
+
+    expect(tokensAddr1).not.be.empty
+    expect(tokensAddr1).to.be.length(countTokens)
+    expect(tokensAddr2).to.be.empty
+    expect(tokensAddr1[0]["tokenId"]).to.equal(1)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(token1MetadataCID)
+    expect(tokensAddr1[1]["tokenId"]).to.equal(2)
+    expect(tokensAddr1[1]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[1]["metadataCID"]).to.equal(token2MetadataCID)
+    expect(tokensAddr1[2]["tokenId"]).to.equal(3)
+    expect(tokensAddr1[2]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[2]["metadataCID"]).to.equal(token3MetadataCID)
+  });
+
+  it("get paginated tokens owned by any account", async function () {
+    const { instance, addr1, addr2 } = await deployContractFixture()
+    let token1MetadataCID = "123456a"
+    let token2MetadataCID = "123456b"
+    let token3MetadataCID = "123456c"
+    let token4MetadataCID = "123456d"
+    let token5MetadataCID = "123456e"
+    let token6MetadataCID = "123456f"
+    let countTokens = 3
+
+    await instance.connect(addr1).mintToken(token1MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token2MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token3MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token4MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token5MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token6MetadataCID, DEFAULT_TOKEN_ROYALTY)
+
+    let tokensAddr1 = await instance.connect(addr2).getPaginatedTokensOwnedBy(addr1.address, countTokens)
+    let tokensAddr2 = await instance.connect(addr1).getPaginatedTokensOwnedBy(addr2.address, countTokens)
+
+    expect(tokensAddr1).not.be.empty
+    expect(tokensAddr1).to.be.length(countTokens)
+    expect(tokensAddr2).to.be.empty
+    expect(tokensAddr1[0]["tokenId"]).to.equal(1)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(token1MetadataCID)
+    expect(tokensAddr1[1]["tokenId"]).to.equal(2)
+    expect(tokensAddr1[1]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[1]["metadataCID"]).to.equal(token2MetadataCID)
+    expect(tokensAddr1[2]["tokenId"]).to.equal(3)
+    expect(tokensAddr1[2]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[2]["metadataCID"]).to.equal(token3MetadataCID)
+  });
+
   it("get tokens owned by any account", async function () {
     const { instance, addr1, addr2 } = await deployContractFixture()
 
@@ -161,6 +241,87 @@ describe("ArtCollectibleContract", function () {
     expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(tokensAddr1[0]["metadataCID"]).to.equal(DEFAULT_METADATA_CID)
     expect(tokensAddr1[0]["isExist"]).to.be.true
+  });
+
+  it("get paginated tokens created by me", async function () {
+    const { instance, addr1, addr2 } = await deployContractFixture()
+    let token1MetadataCID = "123456a"
+    let token2MetadataCID = "123456b"
+    let token3MetadataCID = "123456c"
+    let token4MetadataCID = "123456d"
+    let token5MetadataCID = "123456e"
+    let token6MetadataCID = "123456f"
+    let countTokens = 3
+
+    await instance.connect(addr1).mintToken(token1MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token2MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token3MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token4MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token5MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token6MetadataCID, DEFAULT_TOKEN_ROYALTY)
+
+    let tokensAddr1 = await instance.connect(addr1).getPaginatedTokensCreatedByMe(countTokens)
+    let tokensAddr2 = await instance.connect(addr2).getPaginatedTokensCreatedByMe(countTokens)
+
+    expect(tokensAddr1).not.be.empty
+    expect(tokensAddr1).to.be.length(countTokens)
+    expect(tokensAddr2).to.be.empty
+    expect(tokensAddr1[0]["tokenId"]).to.equal(1)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(token1MetadataCID)
+    expect(tokensAddr1[1]["tokenId"]).to.equal(2)
+    expect(tokensAddr1[1]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[1]["metadataCID"]).to.equal(token2MetadataCID)
+    expect(tokensAddr1[2]["tokenId"]).to.equal(3)
+    expect(tokensAddr1[2]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[2]["metadataCID"]).to.equal(token3MetadataCID)
+  });
+
+
+  it("get paginated tokens created by any account", async function () {
+    const { instance, addr1, addr2 } = await deployContractFixture()
+    let token1MetadataCID = "123456a"
+    let token2MetadataCID = "123456b"
+    let token3MetadataCID = "123456c"
+    let token4MetadataCID = "123456d"
+    let token5MetadataCID = "123456e"
+    let token6MetadataCID = "123456f"
+    let countTokens = 3
+
+    await instance.connect(addr1).mintToken(token1MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token2MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token3MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token4MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token5MetadataCID, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(token6MetadataCID, DEFAULT_TOKEN_ROYALTY)
+
+    let tokensAddr1 = await instance.connect(addr2).getPaginatedTokensCreatedBy(addr1.address, countTokens)
+    let tokensAddr2 = await instance.connect(addr1).getPaginatedTokensCreatedBy(addr2.address, countTokens)
+
+    expect(tokensAddr1).not.be.empty
+    expect(tokensAddr1).to.be.length(countTokens)
+    expect(tokensAddr2).to.be.empty
+    expect(tokensAddr1[0]["tokenId"]).to.equal(1)
+    expect(tokensAddr1[0]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[0]["metadataCID"]).to.equal(token1MetadataCID)
+    expect(tokensAddr1[1]["tokenId"]).to.equal(2)
+    expect(tokensAddr1[1]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[1]["metadataCID"]).to.equal(token2MetadataCID)
+    expect(tokensAddr1[2]["tokenId"]).to.equal(3)
+    expect(tokensAddr1[2]["creator"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["owner"]).to.equal(addr1.address)
+    expect(tokensAddr1[2]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokensAddr1[2]["metadataCID"]).to.equal(token3MetadataCID)
   });
 
   it("get token by id", async function () {

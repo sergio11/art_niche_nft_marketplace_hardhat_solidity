@@ -17,10 +17,22 @@ interface IArtCollectibleContract {
     function getTokensCreatedBy(address creatorAddress) external view returns (ArtCollectible[] memory);
 
     /**
+     * @dev Allows you to retrieve the list of tokens created by the `creatorAddress`
+     *
+     */
+    function getPaginatedTokensCreatedBy(address creatorAddress, uint256 count) external view returns (ArtCollectible[] memory);
+
+    /**
      * @dev Allows you to retrieve the list of tokens created by the `msg.sender`
      *
      */
     function getTokensCreatedByMe() external view returns (ArtCollectible[] memory);
+
+    /**
+     * @dev Allows you to retrieve the list of tokens created by the `msg.sender`
+     *
+     */
+    function getPaginatedTokensCreatedByMe(uint256 count) external view returns (ArtCollectible[] memory);
 
     /**
      * @dev Allows you to retrieve the list of tokens owned by the `ownedAddress`
@@ -29,10 +41,22 @@ interface IArtCollectibleContract {
     function getTokensOwnedBy(address ownedAddress) external view returns (ArtCollectible[] memory);
 
     /**
+     * @dev Allows you to retrieve the list of tokens owned by the `ownedAddress`
+     *
+     */
+    function getPaginatedTokensOwnedBy(address ownedAddress, uint256 count) external view returns (ArtCollectible[] memory);
+
+    /**
      * @dev Allows you to retrieve the list of tokens owned by the `msg.sender`
      *
      */
     function getTokensOwnedByMe() external view returns (ArtCollectible[] memory);
+
+    /**
+     * @dev Allows you to retrieve the list of tokens owned by the `msg.sender`
+     *
+     */
+    function getPaginatedTokensOwnedByMe(uint256 count) external view returns (ArtCollectible[] memory);
 
     /**
      * @dev Allows you to retrieve the address of the creator of the token specified as a `tokenId` parameter
@@ -61,7 +85,7 @@ interface IArtCollectibleContract {
     /**
      * @dev Allows you to transfer collectible
      */
-    function transferTo(address from, address to, uint256 tokenId) external returns (ArtCollectible memory);
+    function transferTo(address from, address to, uint256 tokenId) external;
 
     /**
      * @dev Allows you to count tokens owned by address

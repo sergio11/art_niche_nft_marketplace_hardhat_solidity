@@ -84,7 +84,8 @@ contract ArtMarketplaceContract is
         returns (uint256)
     {
         //send the token to the smart contract
-        IArtCollectibleContract.ArtCollectible memory artCollectible = IArtCollectibleContract(_artCollectibleAddress).transferTo(msg.sender, address(this), tokenId);
+        IArtCollectibleContract(_artCollectibleAddress).transferTo(msg.sender, address(this), tokenId);
+        IArtCollectibleContract.ArtCollectible memory artCollectible = IArtCollectibleContract(_artCollectibleAddress).getTokenById(tokenId);
         _marketItemIds.increment();
         uint256 marketItemId = _marketItemIds.current();
         _tokensForSale[marketItemId] = ArtCollectibleForSale(
