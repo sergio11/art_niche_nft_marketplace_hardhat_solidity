@@ -704,7 +704,6 @@ describe("ArtMarketplaceContract", function () {
       value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
     })
 
-
     let token1MarketHistory = await artMarketplace.fetchTokenMarketHistory(token1ID)
     let token2MarketHistory = await artMarketplace.fetchTokenMarketHistory(token2ID)
 
@@ -872,6 +871,5 @@ describe("ArtMarketplaceContract", function () {
     expect(lastMarketHistoryItems[1]["sold"]).to.be.true
     expect(lastMarketHistoryItems[1]["canceled"]).to.be.false
   })
-
 
 });

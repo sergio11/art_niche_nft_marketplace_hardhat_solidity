@@ -144,8 +144,11 @@ interface IArtMarketplaceContract {
         address payable seller;
         address payable owner;
         uint256 price;
+        uint putForSaleAt;
         bool sold;
+        uint soldAt;
         bool canceled;
+        uint canceledAt;
     }
 
     struct MarketStatistics {

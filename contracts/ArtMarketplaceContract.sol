@@ -96,8 +96,11 @@ contract ArtMarketplaceContract is
             payable(msg.sender),
             payable(address(this)),
             price,
+            block.timestamp,
             false,
-            false
+            0,
+            false,
+            0
         );
         _tokenForSaleMarketItemId[tokenId] = marketItemId;
         _tokenMetadataCidToMarketItemId[artCollectible.metadataCID] = marketItemId;
@@ -140,6 +143,7 @@ contract ArtMarketplaceContract is
         uint256 marketId = _tokenForSaleMarketItemId[tokenId];
         _tokensForSale[marketId].owner = payable(msg.sender);
         _tokensForSale[marketId].canceled = true;
+        _tokensForSale[marketId].canceledAt = block.timestamp;
         _marketHistory.push(_tokensForSale[marketId]);
         _addressTokensWithdrawn[msg.sender] += 1;
         string memory metadataCID = _tokensForSale[marketId].metadataCID;
@@ -209,6 +213,7 @@ contract ArtMarketplaceContract is
         uint256 marketId = _tokenForSaleMarketItemId[tokenId];
         _tokensForSale[marketId].owner = payable(msg.sender);
         _tokensForSale[marketId].sold = true;
+        _tokensForSale[marketId].soldAt = block.timestamp;
         _marketHistory.push(_tokensForSale[marketId]);
         _addressTokensSold[_tokensForSale[marketId].seller] += 1;
         _addressTokensBought[msg.sender] += 1;
