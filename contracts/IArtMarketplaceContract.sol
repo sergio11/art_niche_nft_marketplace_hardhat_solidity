@@ -26,7 +26,6 @@ interface IArtMarketplaceContract {
     */
     function isTokenMetadataCIDAddedForSale(string memory metadataCID) external view returns (bool);
 
-
     /**
      * @dev Cancel a listing of an item with a `tokenId`
      *
@@ -86,6 +85,11 @@ interface IArtMarketplaceContract {
     function countCanceledMarketItems() external view returns (uint256);
 
     /**
+     * @dev Count token transactions
+     */
+    function countTokenTransactions(uint256 tokenId) external view returns (uint256);
+
+    /**
      * @dev Fetch Wallet statistics
      */
     function fetchWalletStatistics(address ownerAddress) external view returns (WalletStatistics memory);
@@ -124,6 +128,11 @@ interface IArtMarketplaceContract {
      * @dev Allow us to fetch market history of the token
      */
     function fetchTokenMarketHistory(uint256 tokenId) external view returns (ArtCollectibleForSale[] memory);
+
+    /**
+     * @dev Allow us to fetch market history of the token
+     */
+    function fetchPaginatedTokenMarketHistory(uint256 tokenId, uint256 count) external view returns (ArtCollectibleForSale[] memory);
 
     /**
      * @dev Allow us to fetch market history

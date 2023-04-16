@@ -384,22 +384,14 @@ contract ArtMarketplaceContract is
      * @dev Allow us to fetch market history of the token
      */
     function fetchTokenMarketHistory(uint256 tokenId) external view returns (ArtCollectibleForSale[] memory) {
-        uint256 totalMarketItems = _marketHistory.length;
-        uint256 totalTokenMarketItems = 0;
-        for (uint i = 0; i < totalMarketItems; i++) {
-            if (_marketHistory[i].tokenId != tokenId) continue;
-            totalTokenMarketItems += 1;
-        }
-    
-        ArtCollectibleForSale[] memory _marketItems = new ArtCollectibleForSale[](totalTokenMarketItems);
-        uint256 currentIndex = 0;
-        for (uint i = totalMarketItems; i > 0; i--) {
-            uint256 itemIndex = i - 1;
-            if (_marketHistory[itemIndex].tokenId != tokenId) continue;
-            _marketItems[currentIndex] = _marketHistory[itemIndex];
-            currentIndex += 1;
-        }
-        return _marketItems;
+        return _fetchTokenMarketHistory(tokenId, 0);
+    }
+
+    /**
+     * @dev Allow us to fetch market history of the token
+     */
+    function fetchPaginatedTokenMarketHistory(uint256 tokenId, uint256 count) external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchTokenMarketHistory(tokenId, count);
     }
 
     /**
@@ -465,6 +457,25 @@ contract ArtMarketplaceContract is
             currentIndex += 1;
         }
         return items;
+    }
+
+    function _fetchTokenMarketHistory(uint256 tokenId, uint256 count) private view returns (ArtCollectibleForSale[] memory) {
+        uint256 totalMarketItems = _marketHistory.length;
+        uint256 totalTokenMarketItems = 0;
+        for (uint i = 0; i < totalMarketItems; i++) {
+            if (_marketHistory[i].tokenId != tokenId) continue;
+            totalTokenMarketItems += 1;
+        }
+        uint256 itemsToReturn = count > 0 ? count: totalTokenMarketItems;
+        ArtCollectibleForSale[] memory _marketItems = new ArtCollectibleForSale[](itemsToReturn);
+        uint256 currentIndex = 0;
+        for (uint i = totalMarketItems; i > 0 && _marketItems.length < itemsToReturn; i--) {
+            uint256 itemIndex = i - 1;
+            if (_marketHistory[itemIndex].tokenId != tokenId) continue;
+            _marketItems[currentIndex] = _marketHistory[itemIndex];
+            currentIndex += 1;
+        }
+        return _marketItems;
     }
 
     // Modifiers
