@@ -800,6 +800,30 @@ describe("ArtMarketplaceContract", function () {
     expect(countTokenWithdrawnAddr2).to.equal(1)
   })
 
+  
+  it("count token transactions", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).withdrawFromSale(DEFAULT_TOKEN_ID)
+
+    let countTokenTransactions = await artMarketplace.connect(addr1).countTokenTransactions(DEFAULT_TOKEN_ID);
+
+    expect(countTokenTransactions).to.equal(4)
+
+  })
+
+
   it("fetch wallet statistics", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 

@@ -37,6 +37,7 @@ contract ArtMarketplaceContract is
     mapping(address => uint256) private _addressTokensSold;
     mapping(address => uint256) private _addressTokensBought;
     mapping(address => uint256) private _addressTokensWithdrawn;
+    mapping(uint256 => uint256) private _tokensTransactions;
 
 
     function getArtCollectibleAddress()
@@ -106,6 +107,7 @@ contract ArtMarketplaceContract is
         _tokenMetadataCidToMarketItemId[artCollectible.metadataCID] = marketItemId;
         _hasBeenAddedForSale[tokenId] = true;
         _tokenMetadataCidHasBeenAddedForSale[artCollectible.metadataCID] = true;
+        _tokensTransactions[tokenId] += 1;
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
     }
@@ -146,11 +148,12 @@ contract ArtMarketplaceContract is
         _tokensForSale[marketId].canceledAt = block.timestamp;
         _marketHistory.push(_tokensForSale[marketId]);
         _addressTokensWithdrawn[msg.sender] += 1;
+        _tokensTransactions[tokenId] += 1;
         string memory metadataCID = _tokensForSale[marketId].metadataCID;
         delete _tokenMetadataCidToMarketItemId[metadataCID];
         delete _hasBeenAddedForSale[tokenId];
         delete _tokenMetadataCidHasBeenAddedForSale[metadataCID];
-        delete _tokensForSale[tokenId];
+        delete _tokensForSale[marketId];
         delete _tokenForSaleMarketItemId[tokenId];
         emit ArtCollectibleWithdrawnFromSale(tokenId);
     }
@@ -217,11 +220,12 @@ contract ArtMarketplaceContract is
         _marketHistory.push(_tokensForSale[marketId]);
         _addressTokensSold[_tokensForSale[marketId].seller] += 1;
         _addressTokensBought[msg.sender] += 1;
+        _tokensTransactions[tokenId] += 1;
         string memory metadataCID = _tokensForSale[marketId].metadataCID;
         delete _tokenMetadataCidToMarketItemId[metadataCID];
         delete _hasBeenAddedForSale[tokenId];
         delete _tokenMetadataCidHasBeenAddedForSale[metadataCID];
-        delete _tokensForSale[tokenId];
+        delete _tokensForSale[marketId];
         delete _tokenForSaleMarketItemId[tokenId];
         emit ArtCollectibleSold(tokenId, msg.sender, msg.value);
     }
@@ -260,6 +264,13 @@ contract ArtMarketplaceContract is
      */
     function countCanceledMarketItems() external view returns (uint256) {
         return _tokensCanceled.current();
+    }
+
+    /**
+     * @dev Count token transactions
+     */
+    function countTokenTransactions(uint256 tokenId) external view returns (uint256) {
+        return _tokensTransactions[tokenId];
     }
 
     /**
