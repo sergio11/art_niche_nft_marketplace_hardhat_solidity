@@ -113,6 +113,11 @@ interface IArtMarketplaceContract {
      * @dev Fetch market items that are being listed by the msg.sender
      */
     function fetchSellingMarketItems() external view returns (ArtCollectibleForSale[] memory);
+
+    /**
+     * @dev Fetch market items that are being listed by the msg.sender
+     */
+    function fetchPaginatedSellingMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory);
     
     /**
      * @dev Fetch market items that are owned by the msg.sender
@@ -120,9 +125,19 @@ interface IArtMarketplaceContract {
     function fetchOwnedMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
     /**
+     * @dev Fetch market items that are owned by the msg.sender
+     */
+    function fetchPaginatedOwnedMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory);
+
+    /**
      * @dev Fetch market items that are created by the msg.sender
      */
     function fetchCreatedMarketItems() external view returns (ArtCollectibleForSale[] memory);
+
+    /**
+     * @dev Fetch market items that are created by the msg.sender
+     */
+    function fetchPaginatedCreatedMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory);
 
     /**
      * @dev Allow us to fetch market history of the token

@@ -550,6 +550,56 @@ describe("ArtMarketplaceContract", function () {
     expect(sellingItemsForAddr1[1]["canceled"]).to.be.false
   });
 
+  it("fetch paginated selling market items after putting several items for sale", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    let tokenMetadataCid2 = "32143234324"
+    let tokenMetadataCid3 = "23143243234"
+    let tokenMetadataCid4 = "32413242334"
+    let token2Id = 2
+    let token3Id = 3
+    let token4Id = 4
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid2, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid3, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid4, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token2Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token3Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token4Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let sellingItemsForAddr = await artMarketplace.connect(addr1).fetchPaginatedSellingMarketItems(2)
+
+    expect(sellingItemsForAddr).to.be.an('array').that.is.not.empty
+    expect(sellingItemsForAddr).to.have.length(2)
+    expect(sellingItemsForAddr[0]["marketItemId"]).to.be.equal(1)
+    expect(sellingItemsForAddr[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(sellingItemsForAddr[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
+    expect(sellingItemsForAddr[0]["creator"]).to.be.equal(addr1.address)
+    expect(sellingItemsForAddr[0]["seller"]).to.be.equal(addr1.address)
+    expect(sellingItemsForAddr[0]["owner"]).to.be.equal(artMarketplace.address)
+    expect(sellingItemsForAddr[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(sellingItemsForAddr[0]["sold"]).to.be.false
+    expect(sellingItemsForAddr[0]["canceled"]).to.be.false
+    expect(sellingItemsForAddr[1]["marketItemId"]).to.be.equal(2)
+    expect(sellingItemsForAddr[1]["metadataCID"]).to.be.equal(tokenMetadataCid2)
+    expect(sellingItemsForAddr[1]["tokenId"]).to.be.equal(2)
+    expect(sellingItemsForAddr[1]["creator"]).to.be.equal(addr1.address)
+    expect(sellingItemsForAddr[1]["seller"]).to.be.equal(addr1.address)
+    expect(sellingItemsForAddr[1]["owner"]).to.be.equal(artMarketplace.address)
+    expect(sellingItemsForAddr[1]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(sellingItemsForAddr[1]["sold"]).to.be.false
+    expect(sellingItemsForAddr[1]["canceled"]).to.be.false
+  });
+
   it("fetch owned market items", async function () {  
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
     
@@ -575,6 +625,46 @@ describe("ArtMarketplaceContract", function () {
     expect(ownedMarketItemsForMarketplaceAddr[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
     expect(ownedMarketItemsForMarketplaceAddr[0]["sold"]).to.be.false
     expect(ownedMarketItemsForMarketplaceAddr[0]["canceled"]).to.be.false
+  });
+
+  it("fetch paginated owned market items", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+
+    let tokenMetadataCid2 = "32143234324"
+    let tokenMetadataCid3 = "23143243234"
+    let tokenMetadataCid4 = "32413242334"
+    let token2Id = 2
+    let token3Id = 3
+    let token4Id = 4
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid2, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid3, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid4, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token2Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token3Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token4Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let ownedMarketItems = await artMarketplace.connect(artMarketplace.address).fetchPaginatedOwnedMarketItems(2)
+
+    expect(ownedMarketItems).to.be.an('array').to.have.length(2)
+    expect(ownedMarketItems[0]["marketItemId"]).to.be.equal(1)
+    expect(ownedMarketItems[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(ownedMarketItems[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
+    expect(ownedMarketItems[0]["creator"]).to.be.equal(addr1.address)
+    expect(ownedMarketItems[0]["seller"]).to.be.equal(addr1.address)
+    expect(ownedMarketItems[0]["owner"]).to.be.equal(artMarketplace.address)
+    expect(ownedMarketItems[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(ownedMarketItems[0]["sold"]).to.be.false
+    expect(ownedMarketItems[0]["canceled"]).to.be.false
   });
 
   it("fetch owned market items after withdraw market item", async function () {  
@@ -630,6 +720,46 @@ describe("ArtMarketplaceContract", function () {
     expect(createdMarketItemsForAddr1[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
     expect(createdMarketItemsForAddr1[0]["sold"]).to.be.false
     expect(createdMarketItemsForAddr1[0]["canceled"]).to.be.false
+  });
+
+  it("fetch paginated created market items", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+
+    let tokenMetadataCid2 = "32143234324"
+    let tokenMetadataCid3 = "23143243234"
+    let tokenMetadataCid4 = "32413242334"
+    let token2Id = 2
+    let token3Id = 3
+    let token4Id = 4
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid2, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid3, DEFAULT_TOKEN_ROYALTY)
+    await artCollectibleContractInstance.connect(addr1).mintToken(tokenMetadataCid4, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token2Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token3Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).putItemForSale(token4Id, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let createdMarketItems = await artMarketplace.connect(addr1).fetchPaginatedCreatedMarketItems(2)
+
+    expect(createdMarketItems).to.be.an('array').to.have.length(2)
+    expect(createdMarketItems[0]["marketItemId"]).to.be.equal(1)
+    expect(createdMarketItems[0]["tokenId"]).to.be.equal(DEFAULT_TOKEN_ID)
+    expect(createdMarketItems[0]["metadataCID"]).to.be.equal(DEFAULT_METADATA_CID)
+    expect(createdMarketItems[0]["creator"]).to.be.equal(addr1.address)
+    expect(createdMarketItems[0]["seller"]).to.be.equal(addr1.address)
+    expect(createdMarketItems[0]["owner"]).to.be.equal(artMarketplace.address)
+    expect(createdMarketItems[0]["price"]).to.be.equal(DEFAULT_TOKEN_PRICE)
+    expect(createdMarketItems[0]["sold"]).to.be.false
+    expect(createdMarketItems[0]["canceled"]).to.be.false
   });
 
   it("fetch market history", async function () {  

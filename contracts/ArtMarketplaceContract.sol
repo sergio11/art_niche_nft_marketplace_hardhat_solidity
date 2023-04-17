@@ -344,7 +344,14 @@ contract ArtMarketplaceContract is
         view
         returns (ArtCollectibleForSale[] memory)
     {
-        return _fetchMarketItemsByAddressProperty("seller");
+        return _fetchMarketItemsByAddressProperty("seller", 0);
+    }
+
+    /**
+     * @dev Fetch market items that are being listed by the msg.sender
+     */
+    function fetchPaginatedSellingMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchMarketItemsByAddressProperty("seller", count);
     }
 
     /**
@@ -355,7 +362,14 @@ contract ArtMarketplaceContract is
         view
         returns (ArtCollectibleForSale[] memory)
     {
-        return _fetchMarketItemsByAddressProperty("owner");
+        return _fetchMarketItemsByAddressProperty("owner", 0);
+    }
+
+    /**
+     * @dev Fetch market items that are owned by the msg.sender
+     */
+    function fetchPaginatedOwnedMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchMarketItemsByAddressProperty("owner", count);
     }
 
     /**
@@ -366,7 +380,14 @@ contract ArtMarketplaceContract is
         view 
         returns (ArtCollectibleForSale[] memory) 
     {
-        return _fetchMarketItemsByAddressProperty("creator");
+        return _fetchMarketItemsByAddressProperty("creator", 0);
+    }
+
+    /**
+     * @dev Fetch market items that are created by the msg.sender
+     */
+    function fetchPaginatedCreatedMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchMarketItemsByAddressProperty("creator", count);
     }
 
     /**
@@ -413,7 +434,7 @@ contract ArtMarketplaceContract is
      * can be "owner" or "seller".
      * See original: https://github.com/dabit3/polygon-ethereum-nextjs-marketplace/blob/main/contracts/Market.sol#L121
      */
-    function _fetchMarketItemsByAddressProperty(string memory _addressProperty)
+    function _fetchMarketItemsByAddressProperty(string memory _addressProperty, uint256 count)
         private
         view
         returns (ArtCollectibleForSale[] memory)
@@ -439,10 +460,9 @@ contract ArtMarketplaceContract is
             if (addressPropertyValue != msg.sender) continue;
             itemCount += 1;
         }
-        ArtCollectibleForSale[] memory items = new ArtCollectibleForSale[](
-            itemCount
-        );
-        for (uint256 i = 0; i < totalItemsCount; i++) {
+        uint256 itemsToReturn = count > 0 && itemCount > count ? count: itemCount;
+        ArtCollectibleForSale[] memory items = new ArtCollectibleForSale[](itemsToReturn);
+        for (uint256 i = 0; i < totalItemsCount && currentIndex < itemsToReturn; i++) {
             ArtCollectibleForSale storage item = _tokensForSale[i + 1];
             address addressPropertyValue;
             if(_addressProperty.compareStrings("seller")) {
