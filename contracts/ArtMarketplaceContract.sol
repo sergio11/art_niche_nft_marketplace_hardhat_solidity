@@ -38,6 +38,7 @@ contract ArtMarketplaceContract is
     mapping(address => uint256) private _addressTokensBought;
     mapping(address => uint256) private _addressTokensWithdrawn;
     mapping(uint256 => uint256) private _tokensTransactions;
+    mapping(uint256 => uint256) private _marketItemIdToHistoryPosition;
 
 
     function getArtCollectibleAddress()
@@ -112,6 +113,7 @@ contract ArtMarketplaceContract is
         return marketItemId;
     }
 
+
     /**
     * @dev is token added for sale
     */
@@ -147,6 +149,7 @@ contract ArtMarketplaceContract is
         _tokensForSale[marketId].canceled = true;
         _tokensForSale[marketId].canceledAt = block.timestamp;
         _marketHistory.push(_tokensForSale[marketId]);
+        _marketItemIdToHistoryPosition[marketId] = _marketHistory.length - 1;
         _addressTokensWithdrawn[msg.sender] += 1;
         _tokensTransactions[tokenId] += 1;
         string memory metadataCID = _tokensForSale[marketId].metadataCID;
@@ -172,6 +175,13 @@ contract ArtMarketplaceContract is
     function fetchItemForSaleByMetadataCID(string memory metadataCID) external view returns (ArtCollectibleForSale memory) {
         uint256 marketId = _tokenMetadataCidToMarketItemId[metadataCID];
         return _tokensForSale[marketId];
+    }
+
+     /**
+     * @dev Fetch Market history item
+     */
+    function fetchMarketHistoryItem(uint256 marketItemId) external MarketItemIdAvailable(marketItemId) view returns (ArtCollectibleForSale memory) {
+        return _marketHistory[_marketItemIdToHistoryPosition[marketItemId]];
     }
 
     /**
@@ -218,6 +228,7 @@ contract ArtMarketplaceContract is
         _tokensForSale[marketId].sold = true;
         _tokensForSale[marketId].soldAt = block.timestamp;
         _marketHistory.push(_tokensForSale[marketId]);
+        _marketItemIdToHistoryPosition[marketId] = _marketHistory.length - 1;
         _addressTokensSold[_tokensForSale[marketId].seller] += 1;
         _addressTokensBought[msg.sender] += 1;
         _tokensTransactions[tokenId] += 1;
@@ -507,6 +518,14 @@ contract ArtMarketplaceContract is
         _;
     }
 
+    modifier MarketItemIdAvailable(uint256 marketItemId) {
+        require(
+            marketItemId <= _marketItemIds.current(),
+            "Market item id not found"
+        );
+        _;
+    }
+
     modifier NotItemOwner(uint256 tokenId) {
         require(
             ERC721(_artCollectibleAddress).ownerOf(tokenId) != msg.sender,
@@ -527,6 +546,7 @@ contract ArtMarketplaceContract is
         );
         _;
     }
+
 
     modifier PriceMustBeEqualToListingPrice(uint256 value) {
         require(

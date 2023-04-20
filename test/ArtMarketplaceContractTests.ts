@@ -795,6 +795,82 @@ describe("ArtMarketplaceContract", function () {
     expect(ownerOfToken).to.equal(addr1.address)
   });
 
+  it("fetch market history item", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+  
+    let marketItemId = 1
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let marketItem = await artMarketplace.fetchMarketHistoryItem(marketItemId)
+
+    const addr1Balance = await artCollectibleContractInstance.balanceOf(addr1.address)
+    const addr2Balance = await artCollectibleContractInstance.balanceOf(addr2.address)
+    const markerBalance = await artCollectibleContractInstance.balanceOf(artMarketplace.address)
+    const ownerOfToken = await artCollectibleContractInstance.ownerOf(DEFAULT_TOKEN_ID)
+
+    expect(marketItem["marketItemId"]).to.equal(marketItemId)
+    expect(marketItem["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(marketItem["metadataCID"]).to.equal(DEFAULT_METADATA_CID)
+    expect(marketItem["creator"]).to.equal(addr1.address)
+    expect(marketItem["seller"]).to.equal(addr1.address)
+    expect(marketItem["owner"]).to.equal(addr2.address)
+    expect(marketItem["price"]).to.equal(DEFAULT_TOKEN_PRICE)
+    expect(marketItem["sold"]).is.true
+    expect(marketItem["canceled"]).is.false
+    expect(markerBalance).to.equal(0)
+    expect(addr1Balance).to.equal(1)
+    expect(addr2Balance).to.equal(0)
+    expect(ownerOfToken).to.equal(addr1.address)
+  });
+
+  it("fetch market history item - Market item id not found", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+  
+    let marketItemId = 20
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    var fetchMarketHistoryItemErrorMessage: Error | null = null
+    try {
+      await artMarketplace.fetchMarketHistoryItem(marketItemId)
+    } catch(error) {
+      if (error instanceof Error) {
+        fetchMarketHistoryItemErrorMessage = error
+      }
+    }
+
+    expect(fetchMarketHistoryItemErrorMessage).not.be.null
+    expect(fetchMarketHistoryItemErrorMessage!!.message).to.contain("Market item id not found")
+
+  });
+
 
   it("fetch market history of the token", async function () {  
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
