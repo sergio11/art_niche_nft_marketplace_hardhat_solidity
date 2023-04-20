@@ -43,10 +43,21 @@ interface IArtMarketplaceContract {
     function fetchItemForSale(uint256 tokenId) external view returns (ArtCollectibleForSale memory);
 
     /**
+     * @dev Fetch Market history item
+     */
+    function fetchMarketHistoryItem(uint256 marketItemId) external view returns (ArtCollectibleForSale memory);
+
+    /**
      * @dev Fetch item for sale by metadata CID
      */
     function fetchItemForSaleByMetadataCID(string memory metadataCID) external view returns (ArtCollectibleForSale memory);
     
+
+    /**
+     * @dev Fetch current item price
+     */
+    function fetchCurrentItemPrice(uint256 tokenId) external view returns (uint256);
+
     /**
      * @dev Buy an item with a `tokenId` and pay the owner and the creator
      *

@@ -416,6 +416,34 @@ describe("ArtMarketplaceContract", function () {
     expect(itemForSaleDetail["canceled"]).to.be.false
   });
 
+  it("fetch current item price", async function () { 
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    let currentItemPrice = await artMarketplace.connect(addr1).fetchCurrentItemPrice(DEFAULT_TOKEN_ID)
+
+    expect(currentItemPrice).to.be.equal(DEFAULT_TOKEN_PRICE)
+  });
+
+  it("fetch current item price - Item hasn't beed added for sale", async function () { 
+    const { artMarketplace, addr1 } = await deployContractFixture()
+
+    var currentItemPriceMessage: Error | null = null
+    try {
+      await artMarketplace.connect(addr1).fetchCurrentItemPrice(DEFAULT_TOKEN_ID)
+    } catch(error) {
+      if (error instanceof Error) {
+        currentItemPriceMessage = error
+      }
+    }
+
+    expect(currentItemPriceMessage).not.be.null
+    expect(currentItemPriceMessage!!.message).to.contain("Item hasn't beed added for sale")
+  });
+
   it("fetch item for sale detail by metadata CID", async function () { 
     const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
 

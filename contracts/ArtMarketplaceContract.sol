@@ -185,6 +185,14 @@ contract ArtMarketplaceContract is
     }
 
     /**
+     * @dev Fetch current item price
+     */
+    function fetchCurrentItemPrice(uint256 tokenId) external ItemAlreadyAddedForSale(tokenId) view returns (uint256) {
+        uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+        return _tokensForSale[marketId].price;
+    }
+
+    /**
      * @dev Buy an item with a `tokenId` and pay the owner and the creator
      *
      * Requirements:
