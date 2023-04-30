@@ -11,11 +11,7 @@ import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 import "./Utils.sol";
 
 /// @custom:security-contact dreamsoftware92@gmail.com
-contract ArtMarketplaceContract is
-    ReentrancyGuard,
-    Ownable,
-    IArtMarketplaceContract
-{
+contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceContract {
     using Counters for Counters.Counter;
     using SafeMath for uint256;
     using Utils for string;
@@ -41,27 +37,15 @@ contract ArtMarketplaceContract is
     mapping(uint256 => uint256) private _marketItemIdToHistoryPosition;
 
 
-    function getArtCollectibleAddress()
-        public
-        view
-        onlyOwner
-        returns (address)
-    {
+    function getArtCollectibleAddress() public view onlyOwner returns (address) {
         return _artCollectibleAddress;
     }
 
-    function setArtCollectibleAddress(address artCollectibleAddress)
-        public
-        payable
-        onlyOwner
-    {
+    function setArtCollectibleAddress(address artCollectibleAddress) public payable onlyOwner {
         _artCollectibleAddress = artCollectibleAddress;
     }
 
-    function setCostOfPuttingForSale(uint8 _costOfPuttingForSale)
-        external
-        onlyOwner
-    {
+    function setCostOfPuttingForSale(uint8 _costOfPuttingForSale) external onlyOwner {
         costOfPuttingForSale = _costOfPuttingForSale;
     }
 
@@ -75,16 +59,7 @@ contract ArtMarketplaceContract is
      * Emits a {Transfer} event - transfer the token to this smart contract.
      * Emits a {ArtCollectibleAddedForSale} event
      */
-    function putItemForSale(uint256 tokenId, uint256 price)
-        external
-        payable
-        nonReentrant
-        OnlyItemOwner(tokenId)
-        ItemNotAlreadyAddedForSale(tokenId)
-        PriceMustBeAtLeastOneWei(price)
-        PriceMustBeEqualToListingPrice(msg.value)
-        returns (uint256)
-    {
+    function putItemForSale(uint256 tokenId, uint256 price) external payable nonReentrant OnlyItemOwner(tokenId) ItemNotAlreadyAddedForSale(tokenId) PriceMustBeAtLeastOneWei(price) PriceMustBeEqualToListingPrice(msg.value) returns (uint256) {
         //send the token to the smart contract
         IArtCollectibleContract(_artCollectibleAddress).transferTo(msg.sender, address(this), tokenId);
         IArtCollectibleContract.ArtCollectible memory artCollectible = IArtCollectibleContract(_artCollectibleAddress).getTokenById(tokenId);
@@ -137,10 +112,7 @@ contract ArtMarketplaceContract is
      * Emits a {Transfer} event - transfer the token from this smart contract to the owner.
      * Emits a {ArtCollectibleWithdrawnFromSale} event.
      */
-    function withdrawFromSale(uint256 tokenId)
-        external
-        ItemAlreadyAddedForSale(tokenId)
-    {
+    function withdrawFromSale(uint256 tokenId) external ItemAlreadyAddedForSale(tokenId) {
         //send the token from the smart contract back to the one who listed it
         IArtCollectibleContract(_artCollectibleAddress).transferTo(address(this), msg.sender, tokenId);
         _tokensCanceled.increment();
@@ -202,13 +174,7 @@ contract ArtMarketplaceContract is
      * Emits a {Transfer} event - transfer the item from this smart contract to the buyer.
      * Emits an {ArtCollectibleSold} event.
      */
-    function buyItem(uint256 tokenId)
-        external
-        payable
-        NotItemOwner(tokenId)
-        ItemAlreadyAddedForSale(tokenId)
-        PriceMustBeEqualToItemPrice(tokenId, msg.value)
-    {
+    function buyItem(uint256 tokenId) external payable NotItemOwner(tokenId) ItemAlreadyAddedForSale(tokenId) PriceMustBeEqualToItemPrice(tokenId, msg.value) {
         IArtCollectibleContract.ArtCollectible
             memory token = IArtCollectibleContract(_artCollectibleAddress)
                 .getTokenById(tokenId);
@@ -326,43 +292,21 @@ contract ArtMarketplaceContract is
     /**
      * @dev Fetch non sold and non canceled market items
      */
-    function fetchAvailableMarketItems()
-        external
-        view
-        returns (ArtCollectibleForSale[] memory)
-    {
-        uint256 itemsCount = _marketItemIds.current();
-        uint256 soldItemsCount = _tokensSold.current();
-        uint256 canceledItemsCount = _tokensCanceled.current();
-        uint256 availableItemsCount = itemsCount -
-            soldItemsCount -
-            canceledItemsCount;
-        ArtCollectibleForSale[]
-            memory marketItems = new ArtCollectibleForSale[](
-                availableItemsCount
-            );
-        uint256 currentIndex = 0;
-        for (uint256 i = 0; i < itemsCount; i++) {
-            uint256 tokenId = i + 1;
-            if(_hasBeenAddedForSale[tokenId]) {
-                uint256 marketId = _tokenForSaleMarketItemId[tokenId];
-                ArtCollectibleForSale memory item = _tokensForSale[marketId];
-                marketItems[currentIndex] = item;
-                currentIndex += 1;
-            }
-            
-        }
-        return marketItems;
+    function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchAvailableMarketItems(0);
+    }
+
+    /**
+     * @dev Fetch non sold and non canceled market items
+     */
+    function fetchPaginatedAvailableMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {
+        return _fetchAvailableMarketItems(count);
     }
 
     /**
      * @dev Fetch market items that are being listed by the msg.sender
      */
-    function fetchSellingMarketItems()
-        external
-        view
-        returns (ArtCollectibleForSale[] memory)
-    {
+    function fetchSellingMarketItems() external view returns (ArtCollectibleForSale[] memory) {
         return _fetchMarketItemsByAddressProperty("seller", 0);
     }
 
@@ -376,11 +320,7 @@ contract ArtMarketplaceContract is
     /**
      * @dev Fetch market items that are owned by the msg.sender
      */
-    function fetchOwnedMarketItems()
-        public
-        view
-        returns (ArtCollectibleForSale[] memory)
-    {
+    function fetchOwnedMarketItems() public view returns (ArtCollectibleForSale[] memory) {
         return _fetchMarketItemsByAddressProperty("owner", 0);
     }
 
@@ -394,11 +334,7 @@ contract ArtMarketplaceContract is
     /**
      * @dev Fetch market items that are created by the msg.sender
      */
-    function fetchCreatedMarketItems()
-        external 
-        view 
-        returns (ArtCollectibleForSale[] memory) 
-    {
+    function fetchCreatedMarketItems() external  view   returns (ArtCollectibleForSale[] memory)  {
         return _fetchMarketItemsByAddressProperty("creator", 0);
     }
 
@@ -412,11 +348,7 @@ contract ArtMarketplaceContract is
     /**
      * @dev Allow us to fetch market history
      */
-    function fetchMarketHistory()
-        public
-        view
-        returns (ArtCollectibleForSale[] memory)
-    {
+    function fetchMarketHistory() public view returns (ArtCollectibleForSale[] memory) {
         return _marketHistory;
     }
 
@@ -438,9 +370,11 @@ contract ArtMarketplaceContract is
      * @dev Allow us to fetch last market history items
      */
     function fetchLastMarketHistoryItems(uint256 count) external view returns (ArtCollectibleForSale[] memory) {
-        ArtCollectibleForSale[] memory _lastMarketItems = new ArtCollectibleForSale[](count);
+        uint256 availableItemsCount = _marketHistory.length;
+        uint256 itemsToReturn = count > 0 && availableItemsCount > count ? count: availableItemsCount;
+        ArtCollectibleForSale[] memory _lastMarketItems = new ArtCollectibleForSale[](itemsToReturn);
         uint256 currentIndex = 0;
-        for (uint i = _marketHistory.length; i > 0 && currentIndex < count; i--) {
+        for (uint i = _marketHistory.length; i > 0 && currentIndex < itemsToReturn; i--) {
             _lastMarketItems[currentIndex] = _marketHistory[i-1];
             currentIndex += 1;
         }
@@ -453,11 +387,7 @@ contract ArtMarketplaceContract is
      * can be "owner" or "seller".
      * See original: https://github.com/dabit3/polygon-ethereum-nextjs-marketplace/blob/main/contracts/Market.sol#L121
      */
-    function _fetchMarketItemsByAddressProperty(string memory _addressProperty, uint256 count)
-        private
-        view
-        returns (ArtCollectibleForSale[] memory)
-    {
+    function _fetchMarketItemsByAddressProperty(string memory _addressProperty, uint256 count) private view returns (ArtCollectibleForSale[] memory) {
         require(
             _addressProperty.compareStrings("seller") ||
                 _addressProperty.compareStrings("owner") || 
@@ -498,6 +428,27 @@ contract ArtMarketplaceContract is
         return items;
     }
 
+    function _fetchAvailableMarketItems(uint256 count) private view returns (ArtCollectibleForSale[] memory) {
+        uint256 itemsCount = _marketItemIds.current();
+        uint256 soldItemsCount = _tokensSold.current();
+        uint256 canceledItemsCount = _tokensCanceled.current();
+        uint256 availableItemsCount = itemsCount - soldItemsCount - canceledItemsCount;
+        uint256 itemsToReturn = count > 0 && availableItemsCount > count ? count: availableItemsCount;
+        ArtCollectibleForSale[] memory marketItems = new ArtCollectibleForSale[](itemsToReturn);
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < itemsCount && currentIndex < itemsToReturn; i++) {
+            uint256 tokenId = i + 1;
+            if(_hasBeenAddedForSale[tokenId]) {
+                uint256 marketId = _tokenForSaleMarketItemId[tokenId];
+                ArtCollectibleForSale memory item = _tokensForSale[marketId];
+                marketItems[currentIndex] = item;
+                currentIndex += 1;
+            }
+            
+        }
+        return marketItems;
+    }
+
     function _fetchTokenMarketHistory(uint256 tokenId, uint256 count) private view returns (ArtCollectibleForSale[] memory) {
         uint256 totalMarketItems = _marketHistory.length;
         uint256 totalTokenMarketItems = 0;
@@ -505,10 +456,10 @@ contract ArtMarketplaceContract is
             if (_marketHistory[i].tokenId != tokenId) continue;
             totalTokenMarketItems += 1;
         }
-        uint256 itemsToReturn = count > 0 ? count: totalTokenMarketItems;
+        uint256 itemsToReturn = count > 0 && totalTokenMarketItems > count ? count: totalTokenMarketItems;
         ArtCollectibleForSale[] memory _marketItems = new ArtCollectibleForSale[](itemsToReturn);
         uint256 currentIndex = 0;
-        for (uint i = totalMarketItems; i > 0 && _marketItems.length < itemsToReturn; i--) {
+        for (uint i = totalMarketItems; i > 0 && currentIndex < itemsToReturn; i--) {
             uint256 itemIndex = i - 1;
             if (_marketHistory[itemIndex].tokenId != tokenId) continue;
             _marketItems[currentIndex] = _marketHistory[itemIndex];
