@@ -96,12 +96,16 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
     }
 
     function getTokens(uint256[] memory tokenIds) external view returns (ArtCollectible[] memory) {
-        ArtCollectible[] memory tokens = new ArtCollectible[](tokenIds.length);
-        uint256 currentIndex = 0;
+        uint256 tokensAvailables = 0;
         for (uint256 i = 0; i < tokenIds.length; i++) { 
             ArtCollectible memory token = _tokenIdToItem[tokenIds[i]];
             if (!token.isExist) continue;
-            tokens[currentIndex] = token;
+            tokensAvailables += 1;
+        }
+        ArtCollectible[] memory tokens = new ArtCollectible[](tokensAvailables);
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < tokensAvailables; i++) { 
+            tokens[currentIndex] = _tokenIdToItem[tokenIds[i]];
             currentIndex += 1;
         }
         return tokens;
@@ -109,6 +113,23 @@ contract ArtCollectibleContract is ERC721, ERC721Enumerable, ERC721URIStorage, P
 
     function getTokenByMetadataCid(string memory metadataCid) external view ItemMinted(metadataCid) returns (ArtCollectible memory) {
         return _tokenIdToItem[_tokenMetadataCidToTokenId[metadataCid]];
+    }
+
+
+    function getTokensByMetadataCids(string[] memory metadataCids) external view returns (ArtCollectible[] memory) {
+        uint256 tokensAvailables = 0;
+        for (uint256 i = 0; i < metadataCids.length; i++) { 
+            ArtCollectible memory token = _tokenIdToItem[_tokenMetadataCidToTokenId[metadataCids[i]]];
+            if (!token.isExist) continue;
+            tokensAvailables += 1;
+        }
+        ArtCollectible[] memory tokens = new ArtCollectible[](tokensAvailables);
+        uint256 currentIndex = 0;
+        for (uint256 i = 0; i < tokensAvailables; i++) { 
+            tokens[currentIndex] = _tokenIdToItem[_tokenMetadataCidToTokenId[metadataCids[i]]];
+            currentIndex += 1;
+        }
+        return tokens;
     }
 
     function getTokenById(uint256 tokenId) external view TokenMustExist(tokenId) returns (ArtCollectible memory) {

@@ -352,6 +352,87 @@ describe("ArtCollectibleContract", function () {
     expect(token.isExist).to.be.true
   });
 
+  it("get tokens by metadata CID array", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenMetadataCid = "23213dsf"
+    let secondTokenMetadataCid = "fdsfdsr43243"
+    let thirdTokenMetadataCid = "43243rewsrewr"
+    let firstTokenId = 1
+    let secondTokenId = 2
+
+    await instance.connect(addr1).mintToken(firstTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    let tokenList = await instance.connect(addr1).getTokensByMetadataCids([firstTokenMetadataCid, secondTokenMetadataCid])
+
+    expect(tokenList).to.be.an('array').that.is.not.empty
+    expect(tokenList).to.have.length(2)
+    expect(tokenList[0]["tokenId"]).to.equal(firstTokenId)
+    expect(tokenList[0]["creator"]).to.equal(addr1.address)
+    expect(tokenList[0]["owner"]).to.equal(addr1.address)
+    expect(tokenList[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokenList[0]["metadataCID"]).to.equal(firstTokenMetadataCid)
+    expect(tokenList[0]["isExist"]).to.be.true
+    expect(tokenList[1]["tokenId"]).to.equal(secondTokenId)
+    expect(tokenList[1]["creator"]).to.equal(addr1.address)
+    expect(tokenList[1]["owner"]).to.equal(addr1.address)
+    expect(tokenList[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokenList[1]["metadataCID"]).to.equal(secondTokenMetadataCid)
+    expect(tokenList[1]["isExist"]).to.be.true
+    
+  });
+
+  it("get tokens by metadata CID array - request unavailable items", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenMetadataCid = "23213dsf"
+    let secondTokenMetadataCid = "fdsfdsr43243"
+    let thirdTokenMetadataCid = "43243rewsrewr"
+    let unavailableTokenMetadataCid = "rewrwe4324324"
+    let anotherUnavailableTokenMetadataCid = "rew432hfjksdhfk"
+    let firstTokenId = 1
+    let secondTokenId = 2
+
+    await instance.connect(addr1).mintToken(firstTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    let tokenList = await instance.connect(addr1).getTokensByMetadataCids([firstTokenMetadataCid, secondTokenMetadataCid, unavailableTokenMetadataCid, anotherUnavailableTokenMetadataCid])
+
+    expect(tokenList).to.be.an('array').that.is.not.empty
+    expect(tokenList).to.have.length(2)
+    expect(tokenList[0]["tokenId"]).to.equal(firstTokenId)
+    expect(tokenList[0]["creator"]).to.equal(addr1.address)
+    expect(tokenList[0]["owner"]).to.equal(addr1.address)
+    expect(tokenList[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokenList[0]["metadataCID"]).to.equal(firstTokenMetadataCid)
+    expect(tokenList[0]["isExist"]).to.be.true
+    expect(tokenList[1]["tokenId"]).to.equal(secondTokenId)
+    expect(tokenList[1]["creator"]).to.equal(addr1.address)
+    expect(tokenList[1]["owner"]).to.equal(addr1.address)
+    expect(tokenList[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokenList[1]["metadataCID"]).to.equal(secondTokenMetadataCid)
+    expect(tokenList[1]["isExist"]).to.be.true
+    
+  });
+
+  it("get tokens by metadata CID array - No request any item", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenMetadataCid = "23213dsf"
+    let secondTokenMetadataCid = "fdsfdsr43243"
+    let thirdTokenMetadataCid = "43243rewsrewr"
+
+    await instance.connect(addr1).mintToken(firstTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenMetadataCid, DEFAULT_TOKEN_ROYALTY)
+    let tokenList = await instance.connect(addr1).getTokensByMetadataCids([])
+
+    expect(tokenList).to.be.an('array').that.is.empty
+    expect(tokenList).to.have.length(0)
+    
+  });
+
   it("get tokens", async function () {
     const { instance, addr1 } = await deployContractFixture()
 
@@ -367,7 +448,8 @@ describe("ArtCollectibleContract", function () {
     await instance.connect(addr1).mintToken(thirdTokenCid, DEFAULT_TOKEN_ROYALTY)
     let tokens = await instance.connect(addr1).getTokens([firstTokenId, secondTokenId, thirdTokenId])
 
-    expect(tokens).not.be.empty
+    expect(tokens).to.be.an('array').that.is.not.empty
+    expect(tokens).to.have.length(3)
     expect(tokens[0]["tokenId"]).to.equal(firstTokenId)
     expect(tokens[0]["creator"]).to.equal(addr1.address)
     expect(tokens[0]["owner"]).to.equal(addr1.address)
@@ -386,6 +468,74 @@ describe("ArtCollectibleContract", function () {
     expect(tokens[2]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
     expect(tokens[2]["metadataCID"]).to.equal(thirdTokenCid)
     expect(tokens[2]["isExist"]).to.be.true
+  });
+
+  it("get tokens - Request some unavailable item", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenCid = DEFAULT_METADATA_CID
+    let secondTokenCid = "4323423"
+    let thirdTokenCid = "43145665"
+    let unavailableTokenId = 5
+    let anotherUnavailableTokenId = 6
+    let firstTokenId = 1
+    let secondTokenId = 2
+
+    await instance.connect(addr1).mintToken(firstTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenCid, DEFAULT_TOKEN_ROYALTY)
+    let tokens = await instance.connect(addr1).getTokens([firstTokenId, secondTokenId, unavailableTokenId, anotherUnavailableTokenId])
+
+    expect(tokens).to.be.an('array').that.is.not.empty
+    expect(tokens).to.have.length(2)
+    expect(tokens[0]["tokenId"]).to.equal(firstTokenId)
+    expect(tokens[0]["creator"]).to.equal(addr1.address)
+    expect(tokens[0]["owner"]).to.equal(addr1.address)
+    expect(tokens[0]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokens[0]["metadataCID"]).to.equal(firstTokenCid)
+    expect(tokens[0]["isExist"]).to.be.true
+    expect(tokens[1]["tokenId"]).to.equal(secondTokenId)
+    expect(tokens[1]["creator"]).to.equal(addr1.address)
+    expect(tokens[1]["owner"]).to.equal(addr1.address)
+    expect(tokens[1]["royalty"]).to.equal(DEFAULT_TOKEN_ROYALTY)
+    expect(tokens[1]["metadataCID"]).to.equal(secondTokenCid)
+    expect(tokens[1]["isExist"]).to.be.true
+  });
+
+  it("get tokens - request only unavailable items", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenCid = DEFAULT_METADATA_CID
+    let secondTokenCid = "4323423"
+    let thirdTokenCid = "43145665"
+    let unavailableTokenId = 5
+    let anotherUnavailableTokenId = 6
+
+
+    await instance.connect(addr1).mintToken(firstTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenCid, DEFAULT_TOKEN_ROYALTY)
+    let tokens = await instance.connect(addr1).getTokens([unavailableTokenId, anotherUnavailableTokenId])
+
+    expect(tokens).to.be.an('array').that.is.empty
+    expect(tokens).to.have.length(0)
+  });
+
+  it("get tokens - No request any item", async function () {
+    const { instance, addr1 } = await deployContractFixture()
+
+    let firstTokenCid = DEFAULT_METADATA_CID
+    let secondTokenCid = "4323423"
+    let thirdTokenCid = "43145665"
+
+
+    await instance.connect(addr1).mintToken(firstTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(secondTokenCid, DEFAULT_TOKEN_ROYALTY)
+    await instance.connect(addr1).mintToken(thirdTokenCid, DEFAULT_TOKEN_ROYALTY)
+    let tokens = await instance.connect(addr1).getTokens([])
+
+    expect(tokens).to.be.an('array').that.is.empty
+    expect(tokens).to.have.length(0)
   });
 
   it("transfer token", async function () {

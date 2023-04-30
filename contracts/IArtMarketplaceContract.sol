@@ -76,6 +76,11 @@ interface IArtMarketplaceContract {
     function fetchAvailableMarketItems() external view returns (ArtCollectibleForSale[] memory);
 
     /**
+     * @dev Fetch non sold and non canceled market items
+     */
+    function fetchPaginatedAvailableMarketItems(uint256 count) external view returns (ArtCollectibleForSale[] memory);
+
+    /**
      * @dev Fetch Market statistics
      */
     function fetchMarketStatistics() external view returns (MarketStatistics memory);
