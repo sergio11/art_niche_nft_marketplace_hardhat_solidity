@@ -77,7 +77,9 @@ You can run the following command to launch the test suite on the local EVM:
 ```
 npx hardhat test
 ```
-<img width="auto" src="./doc/suite_test.PNG" />
+<img width="auto" src="./doc/art_collectible_contract_test.PNG" />
+<img width="auto" src="./doc/art_marketplace_contract_test.PNG" />
+<img width="auto" src="./doc/faucet_contract_test.PNG" />
 
 You can also use ganache to carry out the tests, for this it is only necessary to use the network option
 
