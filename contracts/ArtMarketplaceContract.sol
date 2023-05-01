@@ -35,6 +35,7 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
     mapping(address => uint256) private _addressTokensWithdrawn;
     mapping(uint256 => uint256) private _tokensTransactions;
     mapping(uint256 => uint256) private _marketItemIdToHistoryPosition;
+    mapping(uint256 => ArtCollectibleMarketPrice[]) private _tokenMarketHistoryPrices;
 
 
     function getArtCollectibleAddress() public view onlyOwner returns (address) {
@@ -84,6 +85,7 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
         _hasBeenAddedForSale[tokenId] = true;
         _tokenMetadataCidHasBeenAddedForSale[artCollectible.metadataCID] = true;
         _tokensTransactions[tokenId] += 1;
+        _tokenMarketHistoryPrices[tokenId].push(ArtCollectibleMarketPrice(marketItemId, tokenId, price, block.timestamp));
         emit ArtCollectibleAddedForSale(marketItemId, tokenId, price);
         return marketItemId;
     }
@@ -379,6 +381,13 @@ contract ArtMarketplaceContract is ReentrancyGuard, Ownable, IArtMarketplaceCont
             currentIndex += 1;
         }
         return _lastMarketItems;
+    }
+
+    /**
+     * @dev Allow us to fetch token market history prices
+     */
+    function fetchTokenMarketHistoryPrices(uint256 tokenId) external view returns (ArtCollectibleMarketPrice[] memory) {
+        return _tokenMarketHistoryPrices[tokenId];
     }
 
 

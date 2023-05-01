@@ -1385,4 +1385,47 @@ describe("ArtMarketplaceContract", function () {
     expect(lastMarketHistoryItems[1]["canceled"]).to.be.false
   })
 
+
+  it("fetch market history prices", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1, addr2 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    await artMarketplace.connect(addr1).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr2).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+    await artCollectibleContractInstance.connect(addr2).approve(artMarketplace.address, DEFAULT_TOKEN_ID);
+    await artMarketplace.connect(addr2).putItemForSale(DEFAULT_TOKEN_ID, DEFAULT_TOKEN_PRICE, {
+      value: ethers.utils.formatUnits(await artMarketplace.costOfPuttingForSale(), "wei")
+    })
+    await artMarketplace.connect(addr1).buyItem(DEFAULT_TOKEN_ID, {
+      value: ethers.utils.formatUnits(DEFAULT_TOKEN_PRICE, "wei")
+    })
+
+    let tokenMarketHistoryPrices = await artMarketplace.fetchTokenMarketHistoryPrices(DEFAULT_TOKEN_ID)
+
+    expect(tokenMarketHistoryPrices).to.be.an('array').that.is.not.empty
+    expect(tokenMarketHistoryPrices).to.have.length(2)
+    expect(tokenMarketHistoryPrices[0]["marketItemId"]).to.equal(1)
+    expect(tokenMarketHistoryPrices[0]["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(tokenMarketHistoryPrices[0]["price"]).to.equal(DEFAULT_TOKEN_PRICE)
+    expect(tokenMarketHistoryPrices[1]["marketItemId"]).to.equal(2)
+    expect(tokenMarketHistoryPrices[1]["tokenId"]).to.equal(DEFAULT_TOKEN_ID)
+    expect(tokenMarketHistoryPrices[1]["price"]).to.equal(DEFAULT_TOKEN_PRICE)
+  })
+
+
+  it("fetch market history prices - no history found", async function () {  
+    const { artMarketplace, artCollectibleContractInstance, addr1 } = await deployContractFixture()
+
+    await artCollectibleContractInstance.connect(addr1).mintToken(DEFAULT_METADATA_CID, DEFAULT_TOKEN_ROYALTY)
+    
+    let tokenMarketHistoryPrices = await artMarketplace.fetchTokenMarketHistoryPrices(DEFAULT_TOKEN_ID)
+
+    expect(tokenMarketHistoryPrices).to.be.an('array').that.is.empty
+    expect(tokenMarketHistoryPrices).to.have.length(0)
+  })
+
 });

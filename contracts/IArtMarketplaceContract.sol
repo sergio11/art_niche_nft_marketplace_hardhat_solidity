@@ -175,6 +175,12 @@ interface IArtMarketplaceContract {
      */
     function fetchLastMarketHistoryItems(uint256 count) external view returns (ArtCollectibleForSale[] memory);
 
+
+    /**
+     * @dev Allow us to fetch token market history prices
+     */
+    function fetchTokenMarketHistoryPrices(uint256 tokenId) external view returns (ArtCollectibleMarketPrice[] memory);
+
     // Data Structure
     struct ArtCollectibleForSale {
         uint256 marketItemId;
@@ -201,6 +207,13 @@ interface IArtMarketplaceContract {
         uint256 countTokenSold;
         uint256 countTokenBought;
         uint256 countTokenWithdrawn;
+    }
+
+    struct ArtCollectibleMarketPrice {
+        uint256 marketItemId;
+        uint256 tokenId;
+        uint256 price;
+        uint date;
     }
 
     // Events Definitions
