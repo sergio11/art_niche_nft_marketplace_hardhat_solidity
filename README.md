@@ -1,4 +1,4 @@
-# ArtNiche - Art Collectibles Marketplace built with Hardhat and Solidity
+# 🎨 ArtNiche - Your Premier NFT Marketplace for Art Collectibles. Crafted with Hardhat and Solidity for Secure and Vibrant Trading. 💼🖼️
 
 
 <img width="auto" align="left" src="./doc/art_niche_icon.png" />
