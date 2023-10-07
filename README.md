@@ -10,7 +10,15 @@ NFTs and digital collectibles are growing popular as the web3 space continues to
 
 Tools like the OpenZeppelin Wizard that offers developers click and write functionalities to create composable and secure smart contracts in no time, used with Web3 developer tools like Alchemy, make the experience of writing a deploying code on the blockchain easy, fast, and reliable like never before
 
-Also you can read more detail information about this project [in this Medium article](https://sanchezsanchezsergio418.medium.com/artniche-revolutionizing-the-world-of-digital-art-with-nfts-and-cutting-edge-architecture-a6cc50d0e8a6).
+📂 Explore the App Repository
+
+For a deeper dive into the application that interacts with these smart contracts, I invite you to explore the [ArtNiche App Repository](https://github.com/sergio11/art_niche_nft_marketplace) to see the dynamic interaction between our NFT marketplace and its user-friendly interface.
+
+📖 Explore Further
+
+For detailed information about this project, please take a closer look at [this Medium article](https://sanchezsanchezsergio418.medium.com/artniche-revolutionizing-the-world-of-digital-art-with-nfts-and-cutting-edge-architecture-a6cc50d0e8a6).
+
+Join to ArtNiche, the digital art revolution and unlock the potential of NFTs!
 
 <p align="center">
   <img src="https://img.shields.io/badge/Solidity-2E8B57?style=for-the-badge&logo=solidity&logoColor=white" />
