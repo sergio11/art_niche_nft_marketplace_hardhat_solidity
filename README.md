@@ -29,6 +29,12 @@ Join to ArtNiche, the digital art revolution and unlock the potential of NFTs!
   <img src="https://img.shields.io/badge/Smart%20Contracts-8B0000?style=for-the-badge&logo=Ethereum&logoColor=white" />
 </p>
 
+## ⚠️ Disclaimer  
+
+**ArtNiche** is an **experimental project** developed for **learning and research purposes** in the areas of **blockchain technology, smart contract development, and decentralized applications (dApps)**. This project explores the implementation of **ERC-721 NFTs** using **Hardhat and Solidity**, providing insights into secure and efficient smart contract deployment.  
+
+This marketplace is deployed in a **test environment** and is intended solely for **development and educational exploration**.
+
 ## UML Design Diagram
 
 Complete UML diagram of decentralized application design.
